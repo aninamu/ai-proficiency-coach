@@ -1,0 +1,5 @@
+week_ending,email,persona,active_days,agent_requests,chat_requests,skills_in_2of4_weeks,skills_in_3of4_weeks,plan_mode_uses,team_rules_hooks_authored,cloud_agent_runs,mcp_days,automations_active_3of4_weeks,commits_with_ai_lines,primary_commits,primary_commits_with_ai_lines,primary_ai_commit_share,primary_cloud_commits,primary_cloud_commit_weeks,accepted_diff_days,group_size,group_level_counts,group_never_engaged_share,coach_checks.repo_rules_in_place
+2026-09-27,fake.developer@example.com,IC,15,240,95,3,2,9,0,5,6,0,31,40,22,0.55,2,2,,,,,true
+2026-09-27,fake.pm@example.com,PM,9,30,40,0,0,1,0,0,0,0,,,,,,,3,,,,
+2026-09-27,fake.newcomer@example.com,IC,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,,,,,
+2026-09-27,fake.lead@example.com,LEADER,13,80,60,2,1,5,0,1,3,0,,,,,,,,4,"{""PL0"":1,""PL1"":1,""PL2"":1,""PL3"":1,""PL4"":0}",0.25,true
