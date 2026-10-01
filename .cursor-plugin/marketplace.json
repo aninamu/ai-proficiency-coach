@@ -1,0 +1,16 @@
+{
+  "name": "ai-proficiency-coach-marketplace",
+  "owner": {
+    "name": "AI Proficiency Coach contributors"
+  },
+  "metadata": {
+    "description": "Single-plugin marketplace for the AI Proficiency Coach plugin."
+  },
+  "plugins": [
+    {
+      "name": "ai-proficiency-coach",
+      "source": "./",
+      "description": "Place yourself or your team on the PL1-PL4 AI proficiency framework from Cursor usage metadata and get 1-2 concrete Cursor next steps."
+    }
+  ]
+}
