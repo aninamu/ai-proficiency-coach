@@ -1,6 +1,6 @@
 # AI Proficiency Coach: weekly input data contract
 
-**What this is.** The per-person, per-week input row the "AI Proficiency Coach" plugin reads. The coach turns each row into pillar scores, a weekly level, a composite score and 1–2 next steps, using the gates in `framework.md` §2 (Metrics & APIs is the source of truth).
+**What this is.** The per-person, per-week input row the "AI Proficiency Coach" plugin reads. The coach turns each row into a weekly level and 1–2 next steps, using the gates in `framework.md` §2 (Metrics & APIs is the source of truth).
 
 **API sources.** Every API field below comes from Cursor's public API docs:
 
@@ -103,7 +103,7 @@ Here "AI lines" = `tabLinesAdded + composerLinesAdded` > 0.
 | Field | Type | Derivation | Gate use |
 |---|---|---|---|
 | `group_size` | int | Members of `led_group_id`. | — |
-| `group_level_counts` | `{PL0, PL1, PL2, PL3, PL4}` | Members' **displayed** weekly levels (PL0 = below PL1). | — |
+| `group_level_counts` | `{PL0, PL1, PL2, PL3, PL4}` | Members' computed weekly levels (PL0 = below PL1). | — |
 | `group_share_pl1_plus` | float | (PL1+PL2+PL3+PL4) / size | PL1 ≥0.50 |
 | `group_share_pl2_plus` | float | (PL2+PL3+PL4) / size | PL2 ≥0.50 |
 | `group_share_pl3_plus` | float | (PL3+PL4) / size | PL3 ≥0.30 · PL4 ≥0.50 |
@@ -123,22 +123,15 @@ These are never fetched from Cursor APIs. Use `null` when unknown.
 | `author_log` | array of `{type: "team_rule" \| "team_hook", name, saved_by_admin, real_author_email, date}` | Admins, when they save a team rule or hook on someone's behalf. | Feeds `team_rules_hooks_authored` |
 | `automation_owner_list` | array of `{service_account_id \| automation_id, owner_email}` | Maintained by admins. Automations under a service account carry `serviceAccountId`, not a person. | Feeds `automations[].attribution` |
 
-### 2.7 History (stored by the pipeline, not an API)
-
-| Field | Type | Why |
-|---|---|---|
-| `history` | array of the last ≥4 weeks: `{week_ending, gated_level, displayed_level}` | Weekly level rule: "Up after 2 straight weeks at the new level; down after 4 straight weeks below. Store weekly snapshots." |
-
 ---
 
 ## 3. What the coach computes (outputs, not inputs)
 
-- **`gated_level`**: the highest level where every pillar gate at that level and below is met (gates are cumulative; "Not required" counts as met).
-- **`displayed_level`**: `gated_level` after applying the up-after-2 / down-after-4 rule to `history`.
-- **`pillar_scores`**: 0–4 per pillar (Adoption, Reuse, Orchestration, Outcomes).
-- **`composite`**: Σ (persona weight × pillar score), on a 0–4 scale, using weights for Adoption / Reuse / Orchestration / Outcomes of IC 20/25/30/25, Leader 20/20/30/30, PM 25/25/35/15. Informational; never sets the level.
+- **`level`**: the highest level where every pillar gate at that level and below is met (gates are cumulative; "Not required" counts as met). One week's snapshot, recomputed from scratch each Monday.
+- **`unmet_gates_for_next_level`**: every gate blocking the next level, smallest relative gap first.
+- **`missing_fields`**: gate inputs that were null. They fail their gate and are never shown as real zeros.
 - **`never_engaged`**: `active_days == 0`.
-- **`next_steps`**: 1–2 suggestions ("A Cursor skill reads your weekly progress and suggests next steps"). Pull them from the PL tab's Step "Try this week" and from the smallest unmet gate.
+- **`next_steps`**: 1–2 suggestions, from the smallest unmet gate via the "Gap → first action" table in `cursor-playbook.md`.
 
 ---
 
@@ -201,32 +194,25 @@ These are never fetched from Cursor APIs. Use `null` when unknown.
     "skills_adopted_by_others": null
   },
   "author_log": [],
-  "automation_owner_list": [],
-
-  "history": [
-    {"week_ending": "2026-09-06", "gated_level": 2, "displayed_level": 2},
-    {"week_ending": "2026-09-13", "gated_level": 2, "displayed_level": 2},
-    {"week_ending": "2026-09-20", "gated_level": 2, "displayed_level": 2}
-  ]
+  "automation_owner_list": []
 }
 ```
 
 **How the fake row scores** (worked against the Metrics gates):
 
-- **Adoption = 3.** 15 active days meets PL3 (≥14) but not PL4 (≥16), and agent requests ≥ chat requests.
-- **Reuse = 2.** It has 2 skills in ≥3 of 4 weeks, so it misses the PL3 bar of ≥3 such skills.
-- **Orchestration = 3.** 5 Cloud Agent runs (≥4) and 6 MCP days (≥3) meet PL3; there are no Automations for PL4.
-- **Outcomes (IC) = 2.** A 55% primary-branch share meets PL2 (≥30%). Only 2 primary cloud commits, so it misses PL3 (≥3).
-- **Level.** Gated level = **PL2** (gates are cumulative, so Reuse and Outcomes cap it). Displayed level = PL2.
-- **Composite.** 0.20·3 + 0.25·2 + 0.30·3 + 0.25·2 = **2.50**.
-- **Coach's two smallest gaps.** One more skill used in ≥3 of 4 weeks, and one more primary-branch cloud commit.
+- **Adoption** clears PL3: 15 active days (≥14, short of PL4's ≥16) and agent requests ≥ chat requests.
+- **Reuse** stops at PL2: 2 skills in ≥3 of 4 weeks, short of PL3's ≥3.
+- **Orchestration** clears PL3: 5 Cloud Agent runs (≥4) and 6 MCP days (≥3); no Automations for PL4.
+- **Outcomes (IC)** stops at PL2: a 55% primary-branch share clears PL2 (≥30%), but 2 primary cloud commits miss PL3 (≥3).
+- **Level = PL2.** Gates are cumulative, so Reuse and Outcomes cap it.
+- **The two smallest gaps.** One more skill used in ≥3 of 4 weeks, and one more primary-branch cloud commit.
 
 ---
 
 ## 5. Feeding `scripts/score.py`
 
 - **JSON**: one row object, or an array of row objects, exactly as in §4. See `examples/fake-ic-row.json`.
-- **CSV**: one row per person-week with the §2 field names as headers. List and object fields (`skills`, `automations`, `author_log`, `automation_owner_list`, `history`, `group_level_counts`) go in JSON-encoded cells. Coach checks may be given as `coach_checks.<name>` columns. See `examples/fake-team.csv`.
+- **CSV**: one row per person-week with the §2 field names as headers. List and object fields (`skills`, `automations`, `author_log`, `automation_owner_list`, `group_level_counts`) go in JSON-encoded cells. Coach checks may be given as `coach_checks.<name>` columns. See `examples/fake-team.csv`.
 - **Derived fields** may be omitted when their raw source is present. The script derives `skills_in_2of4_weeks` and `skills_in_3of4_weeks` from `skills`, `automations_active_3of4_weeks` from `automations`, `team_rules_hooks_authored` from `author_log` (matched on `real_author_email`), `primary_ai_commit_share` from the commit counts, and leader `group_share_*` from `group_level_counts` and `group_size`.
 - **Nulls**: a null gate input fails its gate and is reported under `missing_fields`. It is never shown as a real zero.
 - Rows with `is_removed = true` are skipped.

@@ -15,6 +15,13 @@ def load_example():
         return json.load(fh)
 
 
+def pillars(row):
+    """Pillar scores are an internal detail of the level, so compute them directly."""
+    derived = score.derive(row)
+    gates = score.pillar_gates(derived, derived["persona"])
+    return {p: score.pillar_score(gates[p]) for p in score.PILLARS}
+
+
 def blank_row(persona="IC", **fields):
     row = {
         "email": "fake.person@example.com",
@@ -41,14 +48,13 @@ def blank_row(persona="IC", **fields):
 
 class DataContractExample(unittest.TestCase):
     def test_reproduces_worked_example(self):
-        result = score.score_row(load_example())
+        row = load_example()
         self.assertEqual(
-            result["pillar_scores"],
+            pillars(row),
             {"adoption": 3, "reuse": 2, "orchestration": 3, "outcomes": 2},
         )
-        self.assertEqual(result["gated_level"], 2)
-        self.assertEqual(result["displayed_level"], 2)
-        self.assertEqual(result["composite"], 2.50)
+        result = score.score_row(row)
+        self.assertEqual(result["level"], 2)
         gaps = {(g["field"], g["gap"]) for g in result["unmet_gates_for_next_level"]}
         self.assertEqual(gaps, {("skills_in_3of4_weeks", 1), ("primary_cloud_commits", 1)})
         self.assertEqual(result["missing_fields"], [])
@@ -65,21 +71,22 @@ class DataContractExample(unittest.TestCase):
 
 class Gates(unittest.TestCase):
     def test_not_required_counts_as_met(self):
-        result = score.score_row(blank_row())
-        self.assertEqual(result["pillar_scores"]["reuse"], 1)
-        self.assertEqual(result["pillar_scores"]["orchestration"], 2)
-        self.assertEqual(result["gated_level"], 0)
+        row = blank_row()
+        self.assertEqual(pillars(row)["reuse"], 1)
+        self.assertEqual(pillars(row)["orchestration"], 2)
+        result = score.score_row(row)
+        self.assertEqual(result["level"], 0)
         self.assertTrue(result["never_engaged"])
 
     def test_agent_must_match_chat_from_pl2(self):
         row = blank_row(active_days=20, agent_requests=10, chat_requests=11)
-        self.assertEqual(score.score_row(row)["pillar_scores"]["adoption"], 1)
+        self.assertEqual(pillars(row)["adoption"], 1)
 
     def test_pm_pl4_needs_two_automations(self):
         row = blank_row("PM", accepted_diff_days=10, automations_active_3of4_weeks=1)
-        self.assertEqual(score.score_row(row)["pillar_scores"]["outcomes"], 3)
+        self.assertEqual(pillars(row)["outcomes"], 3)
         row["automations_active_3of4_weeks"] = 2
-        self.assertEqual(score.score_row(row)["pillar_scores"]["outcomes"], 4)
+        self.assertEqual(pillars(row)["outcomes"], 4)
 
     def test_leader_shares_derived_from_counts(self):
         row = blank_row(
@@ -88,15 +95,14 @@ class Gates(unittest.TestCase):
             group_level_counts={"PL0": 0, "PL1": 2, "PL2": 3, "PL3": 4, "PL4": 1},
             group_never_engaged_share=0.0,
         )
-        self.assertEqual(score.score_row(row)["pillar_scores"]["outcomes"], 4)
+        self.assertEqual(pillars(row)["outcomes"], 4)
         row["group_never_engaged_share"] = 0.2
-        self.assertEqual(score.score_row(row)["pillar_scores"]["outcomes"], 2)
+        self.assertEqual(pillars(row)["outcomes"], 2)
 
     def test_missing_field_fails_gate_and_is_reported(self):
         row = blank_row(active_days=None)
-        result = score.score_row(row)
-        self.assertEqual(result["pillar_scores"]["adoption"], 0)
-        self.assertIn("active_days", result["missing_fields"])
+        self.assertEqual(pillars(row)["adoption"], 0)
+        self.assertIn("active_days", score.score_row(row)["missing_fields"])
 
     def test_author_log_feeds_reuse_pl4(self):
         row = load_example()
@@ -104,21 +110,7 @@ class Gates(unittest.TestCase):
             {"type": "team_hook", "name": "fake-hook", "saved_by_admin": True,
              "real_author_email": "fake.developer@example.com", "date": "2026-09-20"},
         ])
-        self.assertEqual(score.score_row(row)["pillar_scores"]["reuse"], 4)
-
-
-class WeeklyLevelRule(unittest.TestCase):
-    def history(self, gated, displayed):
-        return [{"week_ending": "2026-09-%02d" % (i + 1), "gated_level": g, "displayed_level": d}
-                for i, (g, d) in enumerate(zip(gated, displayed))]
-
-    def test_up_needs_two_straight_weeks(self):
-        self.assertEqual(score.displayed_level(3, self.history([2, 2], [2, 2]))[0], 2)
-        self.assertEqual(score.displayed_level(3, self.history([2, 3], [2, 2]))[0], 3)
-
-    def test_down_needs_four_straight_weeks(self):
-        self.assertEqual(score.displayed_level(1, self.history([3, 2, 2], [3, 3, 3]))[0], 3)
-        self.assertEqual(score.displayed_level(1, self.history([2, 2, 2], [3, 3, 3]))[0], 2)
+        self.assertEqual(pillars(row)["reuse"], 4)
 
 
 class CsvInput(unittest.TestCase):
@@ -127,7 +119,7 @@ class CsvInput(unittest.TestCase):
         results = [score.score_row(r) for r in rows]
         by_email = {r["email"]: r for r in results}
         dev = by_email["fake.developer@example.com"]
-        self.assertEqual((dev["gated_level"], dev["composite"]), (2, 2.50))
+        self.assertEqual(dev["level"], 2)
         team = score.team_summary(results)
         self.assertEqual(team["level_counts"], {"PL0": 1, "PL1": 1, "PL2": 2, "PL3": 0, "PL4": 0})
         self.assertEqual(team["never_engaged"], 1)

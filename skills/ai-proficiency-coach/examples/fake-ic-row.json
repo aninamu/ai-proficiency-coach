@@ -60,22 +60,5 @@
     "skills_adopted_by_others": null
   },
   "author_log": [],
-  "automation_owner_list": [],
-  "history": [
-    {
-      "week_ending": "2026-09-06",
-      "gated_level": 2,
-      "displayed_level": 2
-    },
-    {
-      "week_ending": "2026-09-13",
-      "gated_level": 2,
-      "displayed_level": 2
-    },
-    {
-      "week_ending": "2026-09-20",
-      "gated_level": 2,
-      "displayed_level": 2
-    }
-  ]
+  "automation_owner_list": []
 }

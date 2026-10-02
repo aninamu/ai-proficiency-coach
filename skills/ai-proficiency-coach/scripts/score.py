@@ -3,9 +3,9 @@
 
 Input: one JSON object, a JSON array of objects, or a CSV file, each row shaped
 like references/data-contract.md section 2. In CSV, list/object fields
-(skills, automations, author_log, automation_owner_list, history,
-group_level_counts) are JSON-encoded cells, and coach checks may be given as
-`coach_checks.<name>` columns.
+(skills, automations, author_log, automation_owner_list, group_level_counts)
+are JSON-encoded cells, and coach checks may be given as `coach_checks.<name>`
+columns.
 
 Usage:
   python3 score.py ROW.json              # human-readable summary
@@ -27,12 +27,6 @@ import sys
 PILLARS = ("adoption", "reuse", "orchestration", "outcomes")
 PERSONAS = ("IC", "LEADER", "PM")
 
-WEIGHTS = {
-    "IC": {"adoption": 0.20, "reuse": 0.25, "orchestration": 0.30, "outcomes": 0.25},
-    "LEADER": {"adoption": 0.20, "reuse": 0.20, "orchestration": 0.30, "outcomes": 0.30},
-    "PM": {"adoption": 0.25, "reuse": 0.25, "orchestration": 0.35, "outcomes": 0.15},
-}
-
 COACH_CHECKS = {
     "repo_rules_in_place": (2, "Repo rules / AGENTS.md in place"),
     "agent_prs_human_reviewed": (3, "Every agent PR human-reviewed"),
@@ -46,7 +40,6 @@ JSON_CELL_FIELDS = (
     "automations",
     "author_log",
     "automation_owner_list",
-    "history",
     "group_level_counts",
     "coach_checks",
 )
@@ -307,30 +300,6 @@ def pillar_score(levels):
     return score
 
 
-def displayed_level(gated, history):
-    """Apply "up after 2 straight weeks at the new level; down after 4 straight weeks below"."""
-    if not history:
-        return gated, "no history: displayed level equals gated level"
-    ordered = sorted(history, key=lambda h: str(h.get("week_ending", "")))
-    prev = ordered[-1].get("displayed_level")
-    if prev is None:
-        prev = ordered[-1].get("gated_level", gated)
-    series = [h.get("gated_level") for h in ordered] + [gated]
-    series = [s for s in series if s is not None]
-
-    if gated > prev:
-        last2 = series[-2:]
-        if len(last2) == 2 and min(last2) > prev:
-            return min(last2), "up: 2 straight weeks above PL%d" % prev
-        return prev, "held at PL%d: needs 2 straight weeks at the higher level" % prev
-    if gated < prev:
-        last4 = series[-4:]
-        if len(last4) == 4 and max(last4) < prev:
-            return max(last4), "down: 4 straight weeks below PL%d" % prev
-        return prev, "held at PL%d: drops only after 4 straight weeks below" % prev
-    return prev, "steady at PL%d" % prev
-
-
 def score_row(raw, self_reported=False):
     row = derive(raw)
     persona = str(row.get("persona") or "").strip().upper()
@@ -341,12 +310,8 @@ def score_row(raw, self_reported=False):
         )
 
     gates = pillar_gates(row, persona)
-    scores = {p: pillar_score(gates[p]) for p in PILLARS}
-    gated = min(scores.values())
-    shown, reason = displayed_level(gated, row.get("history") or [])
-    composite = sum(WEIGHTS[persona][p] * scores[p] for p in PILLARS)
-
-    next_level = gated + 1 if gated < 4 else None
+    level = min(pillar_score(gates[p]) for p in PILLARS)
+    next_level = level + 1 if level < 4 else None
     unmet = []
     if next_level:
         for p in PILLARS:
@@ -382,11 +347,7 @@ def score_row(raw, self_reported=False):
         "persona": persona,
         "week_ending": row.get("week_ending"),
         "data_source": "self-reported" if self_reported else "usage-data",
-        "gated_level": gated,
-        "displayed_level": shown,
-        "displayed_level_reason": reason,
-        "pillar_scores": scores,
-        "composite": round(composite, 2),
+        "level": level,
         "never_engaged": _num(row, "active_days") == 0,
         "next_level": next_level,
         "smallest_unmet_gate": unmet_gates[0] if unmet_gates else None,
@@ -400,7 +361,7 @@ def team_summary(results):
     counts = {"PL%d" % lvl: 0 for lvl in range(5)}
     never = 0
     for result in results:
-        counts["PL%d" % result["displayed_level"]] += 1
+        counts["PL%d" % result["level"]] += 1
         if result["never_engaged"]:
             never += 1
     size = len(results)
@@ -454,14 +415,11 @@ def load_rows(path):
 
 
 def render_text(result):
-    lvl = result["displayed_level"]
     lines = [
         "%s (%s, week ending %s, %s)"
         % (result["email"] or "unknown", result["persona"], result["week_ending"] or "?",
            result["data_source"]),
-        "  Level: PL%d (gated PL%d; %s)" % (lvl, result["gated_level"], result["displayed_level_reason"]),
-        "  Pillars: " + ", ".join("%s %d" % (p.capitalize(), result["pillar_scores"][p]) for p in PILLARS),
-        "  Composite: %.2f / 4 (informational)" % result["composite"],
+        "  Level: PL%d" % result["level"],
     ]
     if result["never_engaged"]:
         lines.append("  Never-engaged: zero active days in the trailing 28 days")
