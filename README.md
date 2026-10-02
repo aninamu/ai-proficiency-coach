@@ -22,7 +22,8 @@ The skill is grounded in one framework (`skills/ai-proficiency-coach/references/
 | In practice | Cursor desktop (editor and Agents Window) is your daily default; Agent handles anything beyond a small edit. | Rules, `AGENTS.md` and skills carry your standards; Plan Mode for big changes; hooks, plugins and MCP extend the agent. | Scoped work goes to Cloud Agents and parallel agents; MCP lets agents act as you; you review. | Event-driven Automations behind approval gates, hooks and an audit trail; others adopt what you build. |
 
 - **Four pillars**: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on persona: AI and cloud commits on the primary branch for a Developer IC, the group's level mix for Eng Leadership, and accepted agent diffs and Automations for a PM / Specialist.
-- **Gates are cumulative.** Your level is the highest level where every pillar gate at that level and below is met.
+- **Gates are cumulative.** Your level is the highest level with no failed pillar gate at that level or below.
+- **Unknown is not zero.** A gate with no data behind it never pushes you down a level; the level is reported as provisional (an upper bound) and the unknown pillar is named. Someone with no data at all isn't scored, rather than being called PL0.
 - **Coach checks (\*)**, such as repo rules / `AGENTS.md`, human review of agent PRs and the governance checklist, are shown next to the level and never set it.
 - Trailing 28 days, recomputed from scratch every Monday. There's no smoothing, so the level is one week's snapshot and a quiet week can move it. All thresholds are in `framework.md` section 2, the single source of truth.
 
@@ -117,7 +118,8 @@ On the fake worked example, the output is `PL2`, and the two smallest gaps to PL
 
 ## Limitations
 
-- The Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers only the top-level repo of a workspace. Without an export, the result is self-reported.
+- The Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers only the top-level repo of a workspace. Where it doesn't reach, the IC Outcomes inputs come back empty, so most levels will be provisional until repo coverage improves. Send nulls rather than zeros for commit fields you can't see: a zero reads as "wrote no AI code" and will hold someone at PL0.
+- Without an export, the result is self-reported.
 - Date-ranged endpoints cap at 30 days, which is enough for the 28-day window.
 - Some items can't be verified by API, so they are coach checks or maintained lists: repo rules / `AGENTS.md`, skill authorship and adoption by others, Bugbot findings per person, the governance checklist, Automation owners under service accounts, team rule or hook authors saved by an admin, parallel agents, output quality, and persona. See `framework.md` "Not verifiable by API".
 - Audit-log `team_rule` / `team_hook` events are all counted as authored for now. Whether `event_data` separates create, update and delete is an open item in the data contract.

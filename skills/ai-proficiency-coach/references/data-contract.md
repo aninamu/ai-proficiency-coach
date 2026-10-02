@@ -127,9 +127,10 @@ These are never fetched from Cursor APIs. Use `null` when unknown.
 
 ## 3. What the coach computes (outputs, not inputs)
 
-- **`level`**: the highest level where every pillar gate at that level and below is met (gates are cumulative; "Not required" counts as met). One week's snapshot, recomputed from scratch each Monday.
+- **`level`**: the highest level with no *failed* gate at that level or below (gates are cumulative; "Not required" counts as met). One week's snapshot, recomputed from scratch each Monday. `null` when no pillar had any data.
+- **`level_provisional`** / **`unknown_pillars`**: true when some gate input was unknown rather than failed. A provisional level is an **upper bound**: the unknown gate could still fail once the data arrives.
 - **`unmet_gates_for_next_level`**: every gate blocking the next level, smallest relative gap first.
-- **`missing_fields`**: gate inputs that were null. They fail their gate and are never shown as real zeros.
+- **`missing_fields`**: gate inputs that were null. A null is unknown, not zero: it neither meets nor fails its gate, so it cannot by itself push someone down a level.
 - **`never_engaged`**: `active_days == 0`.
 - **`next_steps`**: 1–2 suggestions, from the smallest unmet gate via the "Gap → first action" table in `cursor-playbook.md`.
 
@@ -214,5 +215,5 @@ These are never fetched from Cursor APIs. Use `null` when unknown.
 - **JSON**: one row object, or an array of row objects, exactly as in §4. See `examples/fake-ic-row.json`.
 - **CSV**: one row per person-week with the §2 field names as headers. List and object fields (`skills`, `automations`, `author_log`, `automation_owner_list`, `group_level_counts`) go in JSON-encoded cells. Coach checks may be given as `coach_checks.<name>` columns. See `examples/fake-team.csv`.
 - **Derived fields** may be omitted when their raw source is present. The script derives `skills_in_2of4_weeks` and `skills_in_3of4_weeks` from `skills`, `automations_active_3of4_weeks` from `automations`, `team_rules_hooks_authored` from `author_log` (matched on `real_author_email`), `primary_ai_commit_share` from the commit counts, and leader `group_share_*` from `group_level_counts` and `group_size`.
-- **Nulls**: a null gate input fails its gate and is reported under `missing_fields`. It is never shown as a real zero.
+- **Nulls**: a null gate input is *unknown*. It neither meets nor fails its gate, is reported under `missing_fields`, and marks the level provisional. Send a real `0` only when you know the value is zero; a null that should have been a zero inflates the level, and a zero that should have been a null deflates it.
 - Rows with `is_removed = true` are skipped.

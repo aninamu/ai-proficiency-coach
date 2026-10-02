@@ -68,6 +68,11 @@ class Gate:
         return self.value <= self.threshold
 
     @property
+    def unmet(self):
+        """Only a gate we have data for can block a level. Missing data is unknown, not failed."""
+        return not self.missing and not self.met
+
+    @property
     def gap(self):
         if self.met:
             return 0
@@ -290,14 +295,25 @@ def pillar_gates(row, persona):
 
 
 def pillar_score(levels):
-    """Highest level L such that every gate at levels 1..L is met (cumulative)."""
+    """Highest level L with no failed gate at levels 1..L (cumulative; unknowns don't block)."""
     score = 0
     for level in (1, 2, 3, 4):
-        if all(g.met for g in levels[level]):
-            score = level
-        else:
+        if any(g.unmet for g in levels[level]):
             break
+        score = level
     return score
+
+
+def pillar_has_data(levels):
+    """True when at least one gate in the pillar has a value to judge."""
+    return any(not g.missing for level in (1, 2, 3, 4) for g in levels[level])
+
+
+def pillar_fully_known(levels, score):
+    """True when every gate up to the pillar's score has data behind it."""
+    return all(not g.missing
+               for level in range(1, score + 1)
+               for g in levels[level])
 
 
 def score_row(raw, self_reported=False):
@@ -310,8 +326,18 @@ def score_row(raw, self_reported=False):
         )
 
     gates = pillar_gates(row, persona)
-    level = min(pillar_score(gates[p]) for p in PILLARS)
-    next_level = level + 1 if level < 4 else None
+    scored = [p for p in PILLARS if pillar_has_data(gates[p])]
+    unknown_pillars = [p for p in PILLARS if p not in scored]
+    if scored:
+        level = min(pillar_score(gates[p]) for p in scored)
+        provisional = bool(unknown_pillars) or not all(
+            pillar_fully_known(gates[p], pillar_score(gates[p])) for p in scored
+        )
+    else:
+        level = None
+        provisional = True
+
+    next_level = level + 1 if level is not None and level < 4 else None
     unmet = []
     if next_level:
         for p in PILLARS:
@@ -348,6 +374,8 @@ def score_row(raw, self_reported=False):
         "week_ending": row.get("week_ending"),
         "data_source": "self-reported" if self_reported else "usage-data",
         "level": level,
+        "level_provisional": provisional,
+        "unknown_pillars": unknown_pillars,
         "never_engaged": _num(row, "active_days") == 0,
         "next_level": next_level,
         "smallest_unmet_gate": unmet_gates[0] if unmet_gates else None,
@@ -359,18 +387,30 @@ def score_row(raw, self_reported=False):
 
 def team_summary(results):
     counts = {"PL%d" % lvl: 0 for lvl in range(5)}
+    unscored = 0
     never = 0
+    provisional = 0
     for result in results:
-        counts["PL%d" % result["level"]] += 1
+        if result["level"] is None:
+            unscored += 1
+        else:
+            counts["PL%d" % result["level"]] += 1
+            if result["level_provisional"]:
+                provisional += 1
         if result["never_engaged"]:
             never += 1
     size = len(results)
+    scored = size - unscored
 
     def share(levels):
-        return round(sum(counts["PL%d" % lvl] for lvl in levels) / size, 4) if size else None
+        """Shares are over the people we could score, so unscorable rows don't dilute them."""
+        return round(sum(counts["PL%d" % lvl] for lvl in levels) / scored, 4) if scored else None
 
     return {
         "size": size,
+        "scored": scored,
+        "unscored": unscored,
+        "provisional": provisional,
         "level_counts": counts,
         "never_engaged": never,
         "never_engaged_share": round(never / size, 4) if size else None,
@@ -414,12 +454,24 @@ def load_rows(path):
     return _parse_csv(text)
 
 
+def _level_text(result):
+    if result["level"] is None:
+        return "not scored (no usage data for any pillar)"
+    text = "PL%d" % result["level"]
+    if result["level_provisional"]:
+        unknown = result["unknown_pillars"]
+        reason = ("%s unknown" % ", ".join(p.capitalize() for p in unknown) if unknown
+                  else "some inputs unknown")
+        text += " (provisional: %s, so treat it as an upper bound)" % reason
+    return text
+
+
 def render_text(result):
     lines = [
         "%s (%s, week ending %s, %s)"
         % (result["email"] or "unknown", result["persona"], result["week_ending"] or "?",
            result["data_source"]),
-        "  Level: PL%d" % result["level"],
+        "  Level: " + _level_text(result),
     ]
     if result["never_engaged"]:
         lines.append("  Never-engaged: zero active days in the trailing 28 days")
@@ -433,7 +485,8 @@ def render_text(result):
     else:
         lines.append("  At PL4: keep meeting every PL4 gate.")
     if result["missing_fields"]:
-        lines.append("  Missing inputs (gate counted as unmet): " + ", ".join(result["missing_fields"]))
+        lines.append("  Unknown inputs (gate neither met nor failed): "
+                     + ", ".join(result["missing_fields"]))
     checks = ["%s=%s" % (c["label"], "unknown" if c["value"] is None else c["value"])
               for c in result["coach_checks"]]
     if checks:
@@ -467,10 +520,14 @@ def main(argv=None):
     print("\n\n".join(render_text(r) for r in results))
     if team:
         counts = team["level_counts"]
-        print("\nTeam mix (%d people): %s; never-engaged %d (%.0f%%); PL3+ %.0f%%"
-              % (team["size"], ", ".join("%s %d" % (k, v) for k, v in counts.items()),
+        print("\nTeam mix (%d scored of %d): %s; never-engaged %d (%.0f%%); PL3+ %.0f%%"
+              % (team["scored"], team["size"],
+                 ", ".join("%s %d" % (k, v) for k, v in counts.items()),
                  team["never_engaged"], 100 * (team["never_engaged_share"] or 0),
                  100 * (team["share_pl3_plus"] or 0)))
+        if team["unscored"] or team["provisional"]:
+            print("  %d not scored (no data); %d provisional (a pillar is unknown)"
+                  % (team["unscored"], team["provisional"]))
     return 0
 
 

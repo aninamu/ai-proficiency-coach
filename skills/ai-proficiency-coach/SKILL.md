@@ -19,7 +19,7 @@ Reference files (load only what the step needs):
 
 - Use usage metadata only. Never ask for, open or quote chat transcripts, prompts, code, diffs or commit messages.
 - Don't call conversation-level or file-level blame endpoints. Drop commit `message` if an export contains it.
-- Never fabricate or estimate missing numbers. A missing field fails its gate; say which field is missing.
+- Never fabricate or estimate missing numbers. A missing field is unknown, not zero: it can't push someone down a level, and the level is reported as provisional. Say which field is missing and that the level is an upper bound until it arrives.
 - For leaders, show team aggregates by default. Discuss an individual's row only if the leader already has it and asks.
 
 ## Procedure
@@ -44,13 +44,14 @@ Run the scorer instead of computing by hand:
 python3 scripts/score.py <row.json|rows.csv> [--json] [--team] [--self-reported]
 ```
 
-It applies the section 2 gates cumulatively, then returns the level, unmet gates for the next level (smallest first), missing fields, and coach checks. If Python is unavailable, apply framework.md section 2 by hand and show your working.
+It applies the section 2 gates cumulatively, then returns the level, whether that level is provisional and which pillars are unknown, unmet gates for the next level (smallest first), missing fields, and coach checks. If Python is unavailable, apply framework.md section 2 by hand and show your working.
 
 ### 4. State the level and the smallest gap
 
 In two or three sentences:
 
 - The level and its name (e.g. "PL2 · Reusable Agents"). Add the current Step's "You'll recognize this stage when…" line from `references/cursor-playbook.md` so the level feels familiar.
+- If the level is provisional, say which pillar is unknown and that the level is an upper bound. Never present a provisional level as settled. If nothing could be scored, say that instead of calling it PL0.
 - The **smallest unmet gate** for the next level, as a concrete count ("one more skill used in 3 of the 4 weeks").
 - Coach checks (*) next to the level, marked as not affecting it. Say "unknown" for null values.
 - The level is one week's snapshot, not a verdict. Say so if a number looks like it moved because of time off.
@@ -67,7 +68,7 @@ In two or three sentences:
 
 When the user leads a group, or passes a multi-row file:
 
-- Run with `--team`. Report the PL0-PL4 mix, share at PL3+ (PL3 is the org target), and never-engaged count. Never-engaged means zero active days in 28 days.
+- Run with `--team`. Report the PL0-PL4 mix, share at PL3+ (PL3 is the org target), and never-engaged count. Never-engaged means zero active days in 28 days. Report the unscored and provisional counts too; shares are over the people who could be scored, so say how many that was.
 - State the leader's own level, with Outcomes taken from their group's mix.
 - Name the 1-2 **org unblocks** from the "Leaders" section of `references/cursor-playbook.md` that match where most of the group sits.
 - Suggest a follow-up on never-engaged seats that's supportive, not punitive.

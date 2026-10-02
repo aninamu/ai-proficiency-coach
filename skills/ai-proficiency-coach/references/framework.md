@@ -76,7 +76,8 @@ How gates become a weekly level, plus what is checked or monitored but not score
 
 | Rule | Definition | Detail |
 |---|---|---|
-| Weekly level | Highest level where every pillar gate at that level and below is met (gates are cumulative). | “Not required” counts as met. Recomputed each Monday from the trailing 28 days; there is no smoothing, so a quiet week can move the level. |
+| Weekly level | Highest level with no failed pillar gate at that level or below (gates are cumulative). | “Not required” counts as met. Recomputed each Monday from the trailing 28 days; there is no smoothing, so a quiet week can move the level. |
+| Unknown inputs | A gate with no data is unknown, not failed: it never pushes someone down a level. | The level is then **provisional**, an upper bound until the data lands. A person with no data on any pillar is not scored at all rather than PL0. This matters most for Outcomes, where AI Code Tracking is Alpha and covers only the top-level repo. |
 | Coach checks * | PL2: repo rules / AGENTS.md in place. PL3: every agent PR human-reviewed. PL4: governance checklist signed off; no unresolved high-severity Bugbot findings; your skills adopted by others. | Shown next to the PL, never used to set it. |
 | Governance | Approved MCP servers, hooks and repo blocklists; spend is monitored, not scored. | GET /teams/audit-logs → mcp_server_config, mcp_authentication, team_hook · GET /settings/repo-blocklists/repos · POST /teams/spend → overallSpendCents |
 | Never-engaged | Seat holders with zero active days in the trailing 28 days. | GET /teams/members minus active users in POST /teams/daily-usage-data → isActive |

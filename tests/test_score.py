@@ -99,10 +99,44 @@ class Gates(unittest.TestCase):
         row["group_never_engaged_share"] = 0.2
         self.assertEqual(pillars(row)["outcomes"], 2)
 
-    def test_missing_field_fails_gate_and_is_reported(self):
+    def test_missing_field_is_unknown_not_failed(self):
         row = blank_row(active_days=None)
-        self.assertEqual(pillars(row)["adoption"], 0)
-        self.assertIn("active_days", score.score_row(row)["missing_fields"])
+        result = score.score_row(row)
+        self.assertIn("active_days", result["missing_fields"])
+        self.assertTrue(result["level_provisional"])
+        # chat_requests is the PL2+ threshold, so adoption is only judged on what is known.
+        self.assertEqual(pillars(row)["adoption"], 4)
+
+    def test_unknown_pillar_does_not_cap_the_level(self):
+        row = load_example()
+        row.update(skills_in_3of4_weeks=3, team_rules_hooks_authored=1,
+                   automations_active_3of4_weeks=1, active_days=16)
+        for key in ("commits_with_ai_lines", "primary_commits", "primary_ai_commit_share",
+                    "primary_commits_with_ai_lines", "primary_cloud_commits",
+                    "primary_cloud_commit_weeks"):
+            row[key] = None
+        result = score.score_row(row)
+        self.assertEqual(result["level"], 4)
+        self.assertEqual(result["unknown_pillars"], ["outcomes"])
+        self.assertTrue(result["level_provisional"])
+
+    def test_known_zero_still_fails_its_gate(self):
+        row = load_example()
+        row.update(commits_with_ai_lines=0, primary_commits=0,
+                   primary_commits_with_ai_lines=0, primary_ai_commit_share=0,
+                   primary_cloud_commits=0, primary_cloud_commit_weeks=0)
+        result = score.score_row(row)
+        self.assertEqual(result["level"], 0)
+        self.assertEqual(result["unknown_pillars"], [])
+        self.assertFalse(result["level_provisional"])
+
+    def test_row_with_no_data_is_not_scored(self):
+        row = {"email": "empty@example.com", "persona": "IC"}
+        result = score.score_row(row)
+        self.assertIsNone(result["level"])
+        self.assertTrue(result["level_provisional"])
+        self.assertEqual(len(result["unknown_pillars"]), 4)
+        self.assertIsNone(result["next_level"])
 
     def test_author_log_feeds_reuse_pl4(self):
         row = load_example()
