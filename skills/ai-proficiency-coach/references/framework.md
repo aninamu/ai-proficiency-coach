@@ -1,10 +1,10 @@
 # AI Proficiency framework reference
 
-> Reference framework for the **AI Proficiency Coach** Cursor plugin: proficiency levels, steps, gates and API mapping. **Metrics & APIs (section 2) is authoritative** for every level decision; the other sections describe what each level means.
+> Reference framework for the **AI Proficiency Coach** Cursor plugin: what the four proficiency levels and eight Steps mean, and what each looks like from the outside (section 2).
 >
-> `scripts/score.py` implements section 2 exactly. If you change a threshold here, change it there too and re-run `python3 -m unittest discover -s tests` from the repo root.
+> This is a coaching framework, not a scoring one. Nothing here is computed, and the plugin reads no usage data; it places people by conversation and recognition cues.
 >
-> Per-step actions, exercises, what to avoid and org unblocks live in `cursor-playbook.md`. Keep them out of this file so there is one place to change them. Steps 1–8 are coaching signals; only the section 2 gates set the level.
+> Per-step actions, exercises, what to avoid and org unblocks live in `cursor-playbook.md`. Keep them out of this file so there is one place to change them.
 
 ## 1. Overview
 
@@ -53,53 +53,22 @@ _Including, but not limited to:_
 
 > **Principle**: PL4 is governed autonomy, not zero human intervention: humans own the risk gates and reward outcomes.
 
-## 2. Metrics & APIs (single source of truth for gates)
+## 2. Signals you'd notice
 
-Single source of truth for every gate and threshold, and the Cursor API endpoint and field behind each. Trailing 28 days, recomputed every Monday. * = coach check, never sets the PL.
+What each pillar looks like from the outside at each level. These are signals for a coaching conversation, not thresholds: they help you place someone and name what's holding them back. Levels are cumulative, so someone is roughly at the lowest level their four pillars agree on.
 
-### Threshold grid
+| Pillar | PL1 | PL2 | PL3 | PL4 |
+|---|---|---|---|---|
+| Adoption | Cursor open most workdays; Tab and the odd question | Agent is the default for anything beyond a small edit | Cursor is where work starts, and several agents run at once | Work arrives already started by an agent |
+| Reuse | Context re-explained each chat | Rules, `AGENTS.md` and a skill or two, reused week to week; Plan Mode before big changes | The same skills carry most task types; hooks and MCP extend them | Team rules and hooks others pick up |
+| Orchestration | One agent, watched | Agent extended with hooks, plugins or an MCP server | Cloud Agents take scoped tickets; MCP lets agents act as you | Automations run on events and schedules, behind approval gates |
+| Outcomes · Developer IC | AI writes code you keep | AI-written code lands on the primary branch regularly | Cloud Agents open PRs you review and merge | Cloud commits most weeks, from pipelines you own |
+| Outcomes · Eng Leadership | You use Cursor on your own work; your group is active | Most of the group has rules and skills in place | Much of the group delegates to Cloud Agents; nobody is never-engaged | The group runs governed pipelines, and you set the gates |
+| Outcomes · PM / Specialist | You accept agent edits on real work | Recurring work is codified as skills | MCP pulls tickets and docs; agents draft and report | Recurring work runs as Automations you own |
 
-Gates are cumulative: a person is at the highest level where every pillar gate at that level and below is met.
+Things to notice but never score: repo rules and `AGENTS.md` in place, human review on every agent PR, a signed-off governance checklist, Bugbot findings resolved, and whether other people have adopted what someone built. Raise them as coaching points, not criteria.
 
-| Pillar | PL1 | PL2 | PL3 | PL4 | API source (endpoint → field) |
-|---|---|---|---|---|---|
-| Adoption | ≥4 active days | ≥12 active days; agentRequests ≥ chatRequests | ≥14 active days; agentRequests ≥ chatRequests | ≥16 active days; agentRequests ≥ chatRequests | POST /teams/daily-usage-data → isActive, agentRequests, chatRequests |
-| Reuse | Not required | ≥2 skills, each used in ≥2 of 4 weeks; Plan mode ≥4 uses | ≥3 skills, each used in ≥3 of 4 weeks; Plan mode ≥4 uses | PL3 gate, plus ≥1 team rule or team hook authored (admin-saved: real author logged*) | GET /analytics/by-user/skills → skill_name, event_date · /by-user/plans → usage · GET /teams/audit-logs → event_type team_rule, team_hook; user_email |
-| Orchestration | Not required | Not required | ≥4 Cloud Agent runs (distinct cloudAgentId); MCP used on ≥3 days | PL3 gate, plus ≥1 Automation active in ≥3 of 4 weeks | POST /teams/filtered-usage-events → cloudAgentId, automationId, serviceAccountId, timestamp · GET /analytics/by-user/mcp → mcp_server_name, event_date |
-| Outcomes · Developer IC | ≥1 commit with AI lines | ≥30% of primary-branch commits include AI lines | ≥3 primary-branch commits with commitSource = cloud | Primary-branch cloud commits in ≥3 of 4 weeks | GET /analytics/ai-code/commits → userEmail, isPrimaryBranch, commitSource; AI lines = tabLinesAdded + composerLinesAdded |
-| Outcomes · Eng Leadership | ≥50% of group at PL1+ | ≥50% of group at PL2+ | ≥30% of group at PL3+; ≤10% never-engaged | ≥50% of group at PL3+; ≤10% never-engaged | GET /teams/directory-groups/:groupId/members → email, joined to computed PLs |
-| Outcomes · PM / Specialist | Accepted agent diffs on ≥1 day | Accepted agent diffs on ≥4 days | Accepted agent diffs on ≥8 days | Accepted agent diffs on ≥8 days; ≥2 Automations active in ≥3 of 4 weeks | GET /analytics/by-user/agent-edits → total_accepted_diffs, event_date · POST /teams/filtered-usage-events → automationId |
-
-### Scoring rules
-
-How gates become a weekly level, plus what is checked or monitored but not scored.
-
-| Rule | Definition | Detail |
-|---|---|---|
-| Weekly level | Highest level with no failed pillar gate at that level or below (gates are cumulative). | “Not required” counts as met. Recomputed each Monday from the trailing 28 days; there is no smoothing, so a quiet week can move the level. |
-| Unknown inputs | A gate with no data is unknown, not failed: it never pushes someone down a level. | The level is then **provisional**, an upper bound until the data lands. A person with no data on any pillar is not scored at all rather than PL0. This matters most for Outcomes, where AI Code Tracking is Alpha and covers only the top-level repo. |
-| Coach checks * | PL2: repo rules / AGENTS.md in place. PL3: every agent PR human-reviewed. PL4: governance checklist signed off; no unresolved high-severity Bugbot findings; your skills adopted by others. | Shown next to the PL, never used to set it. |
-| Governance | Approved MCP servers, hooks and repo blocklists; spend is monitored, not scored. | GET /teams/audit-logs → mcp_server_config, mcp_authentication, team_hook · GET /settings/repo-blocklists/repos · POST /teams/spend → overallSpendCents |
-| Never-engaged | Seat holders with zero active days in the trailing 28 days. | GET /teams/members minus active users in POST /teams/daily-usage-data → isActive |
-
-### * Not verifiable by API
-
-Coach-verified or self-reported. Shown next to the PL, never used to set it.
-
-| Item | Why / how it is checked |
-|---|---|
-| Repo rules / AGENTS.md | Not exposed by Cursor APIs; GitHub repo scan or coach check. |
-| Hooks, plugins, MCP at PL2 | Encouraged, not gated at PL2; MCP use is gated from PL3. |
-| Skill authorship | Usage is exposed per user; authorship and adoption by others are not. |
-| Bugbot per person | Bugbot data is per repo / PR; needs a GitHub PR-author join. |
-| Governance checklist | Approval gates, rollback plan, kill switch: admin / coach checklist. |
-| Automation owner | Automations under a service account carry serviceAccountId, not a person; they are credited to their owner via a maintained owner list. |
-| Team rule / hook author | Audit logs credit whoever saved it. When an admin saves one on someone's behalf, the admin records the real author in the author log. |
-| Parallel agents | Only a proxy (overlapping conversationId); not used as a gate. |
-| Output quality | Agent and Automation output quality, defect rate, cycle time: coach check or GitHub / Jira, not Cursor APIs. |
-| Persona | From HR / SCIM groups. |
-
-API notes: Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers the top-level repo only. Every date-ranged endpoint caps at 30 days (Analytics defaults to 7; pass startDate=28d). Rate limits: 20/min for daily usage and audit logs, 60/min for usage events.
+**Placement, not measurement.** Someone is usually between two Steps and uneven across pillars. Say so, coach the pillar that's holding them back, and don't attach a number to it. If an org wants to measure this rather than coach it, that's a separate exercise built on the Cursor Admin, Analytics and AI Code Tracking APIs (Enterprise); this skill deliberately doesn't do it.
 
 ## PL1 | AI-Assisted
 
@@ -121,7 +90,6 @@ In the editor, Tab completes the obvious lines, inline edit rewrites a selected 
 
 - Next: Step 2.
 - Signal: you reach for Agent most weeks, not only Tab and inline edit.
-- PL1 gate: regular active days (Metrics & APIs).
 
 ### Step 2 · Cursor-first
 
@@ -134,8 +102,7 @@ Coding work starts in Cursor, in whichever surface fits. Small edits stay in the
 **To advance**
 
 - Next: PL2.
-- Meet every PL2 gate: steady Agent use, skills reused week to week, Plan mode, AI lines on the primary branch.
-- Thresholds: Metrics & APIs.
+- What PL2 looks like: steady Agent use, skills reused week to week, Plan Mode before big changes, AI-written code on the primary branch.
 
 ### At this level, by persona
 
@@ -180,8 +147,7 @@ Each task type starts from a skill with tests in the loop, and team rules keep o
 **To advance**
 
 - Next: PL3.
-- Meet every PL3 gate: skills used most weeks, Cloud Agent runs, MCP use, cloud-originated commits.
-- Thresholds: Metrics & APIs.
+- What PL3 looks like: skills used most weeks, Cloud Agents running, MCP in daily work, cloud-originated commits.
 
 ### At this level, by persona
 
@@ -226,8 +192,7 @@ Agents read the Jira ticket, check Confluence and open the PR as you through MCP
 **To advance**
 
 - Next: PL4.
-- Meet every PL4 gate: an Automation running week over week, a team rule or hook you authored (if an admin saves it, they log you as author), cloud commits most weeks.
-- Thresholds: Metrics & APIs.
+- What PL4 looks like: an Automation running week over week, a team rule or hook you authored, cloud commits most weeks.
 
 ### At this level, by persona
 
@@ -272,8 +237,7 @@ You publish the rules, skills, hooks and Automations other teams adopt. You watc
 **To advance**
 
 - Stay at PL4.
-- Keep meeting every PL4 gate; others adopting the skills you publish is a coach check*.
-- Thresholds: Metrics & APIs.
+- Keep the PL4 habits going. Others adopting what you publish is the sign this one landed.
 
 ### At this level, by persona
 
@@ -288,9 +252,7 @@ _One shared scale; the evidence behind each level differs by role._
 
 ## Notes for the plugin builder
 
-- **Metrics & APIs is authoritative.** Compute levels only from the threshold grid and scoring rules (section 2). Treat the Overview and PL-level text as description, not as gates.
-- **\* items never set the level.** Coach checks and items that can't be verified by API are shown next to the level only. Two maintained lists do feed attribution, so decide up front how to treat a missing entry:
-  - the author log, for team rules and hooks an admin saves on someone's behalf;
-  - the Automation owner list, for runs under a service account.
-- **Privacy.** Usage metadata only. Drop commit `message` when ingesting `/analytics/ai-code/commits`. Don't call conversation-insights or the file-level blame endpoints.
-- **Next steps.** Draw them from the smallest unmet gate, via the "Gap → first action" table in `cursor-playbook.md`.
+- **Nothing here is computed.** Place people from the recognition cues in `cursor-playbook.md` and the signals in section 2. Never produce a score, a percentage or a level with a number attached beyond PL1-PL4.
+- **Next steps come only from `cursor-playbook.md`**, from the person's current Step. Don't invent actions, and don't recommend non-Cursor tools.
+- **Privacy.** Coach from what someone tells you and what's visible in the conversation. Don't ask for usage exports or dashboards, and don't go reading their history, prompts, code or diffs to assess them.
+- **Coaching, not appraisal.** Say so if anyone asks whether this feeds a review.
