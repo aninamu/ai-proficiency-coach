@@ -1,6 +1,6 @@
 ---
 name: ai-proficiency-coach
-description: An on-demand coaching conversation about someone's own AI proficiency. Places them across the four levels (PL1-PL4) and eight Steps, then gives 1-2 concrete Cursor next steps for the week and one thing to avoid. Invoke only when someone explicitly asks to be coached or assessed, by running /ai-proficiency-coach or asking in so many words: "what PL am I?", "how am I doing with AI?", "how do I get to PL3?", or a manager asking how to move their team up a level. Never apply it unprompted, and never use it to assess someone in the background while they work on something else.
+description: "An on-demand coaching conversation about someone's own AI proficiency. Places them across the four levels (PL1-PL4) and eight Steps, then gives 1-2 concrete Cursor next steps for the week and one thing to avoid. Invoke only when someone explicitly asks to be coached or assessed, by running /ai-proficiency-coach or asking in so many words: \"what PL am I?\", \"how am I doing with AI?\", \"how do I get to PL3?\", or a manager asking how to move their team up a level. Never apply it unprompted, and never use it to assess someone in the background while they work on something else."
 disable-model-invocation: false
 ---
 
