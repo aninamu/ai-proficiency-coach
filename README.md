@@ -2,12 +2,14 @@
 
 A Cursor plugin with one coaching skill. It shows an engineer, eng leader or PM where they sit on a four-level AI proficiency framework (PL1-PL4), based on their Cursor usage metadata. Then it gives one or two concrete Cursor next steps for the week and one thing to avoid.
 
-Ask it things like:
+The skill is **manual-only** (`disable-model-invocation: true`). Agent never applies it on its own; it runs only when you invoke it. In Agent chat, type `/ai-proficiency-coach` followed by your question:
 
-- "How am I doing with AI?" or "What PL am I?" (paste or attach your weekly row)
-- "How do I get to PL3?"
-- "Here's my team's export: what's our PL mix, and who's never engaged?"
-- "Coach me: I have no data, can we do a quick self-assessment?"
+```text
+/ai-proficiency-coach How am I doing with AI? Here's my weekly row: <paste or @-mention the file>
+/ai-proficiency-coach How do I get to PL3?
+/ai-proficiency-coach Here's my team's export. What's our PL mix, and who's never engaged?
+/ai-proficiency-coach I have no data. Can we do a quick self-assessment?
+```
 
 The skill is grounded in one framework (`skills/ai-proficiency-coach/references/framework.md`) and one input contract (`references/data-contract.md`). A dependency-free scorer (`scripts/score.py`) applies the gates, so levels are computed the same way every time.
 
@@ -53,7 +55,7 @@ tests/test_score.py      # unit tests, including the worked example
 git clone <this-repo-url> ~/.cursor/plugins/local/ai-proficiency-coach
 ```
 
-Then restart Cursor, or run **Developer: Reload Window**. Open **Customize** and check that the `ai-proficiency-coach` skill appears under Skills. You can invoke it with `/ai-proficiency-coach` or just ask "what PL am I?".
+Then restart Cursor, or run **Developer: Reload Window**. Open **Customize** and check that the `ai-proficiency-coach` skill appears under Skills. Invoke it by typing `/ai-proficiency-coach` in Agent chat. Because the skill is manual-only, asking "what PL am I?" without the slash command won't load it.
 
 Notes:
 

@@ -1,6 +1,7 @@
 ---
 name: ai-proficiency-coach
 description: Coach someone on where they sit on the PL1-PL4 AI proficiency framework from their Cursor usage metadata, name the smallest unmet gate, and give 1-2 concrete Cursor next steps for this week. Use when someone asks "how am I doing with AI?", "what PL am I?", "how do I get to PL2/PL3/PL4?", "what should I try next in Cursor?", pastes or attaches a weekly usage row or admin export, when a manager or tech lead asks about their team's PL mix or never-engaged users, or for any AI proficiency coaching or 1:1 conversation.
+disable-model-invocation: true
 ---
 
 # AI Proficiency Coach
