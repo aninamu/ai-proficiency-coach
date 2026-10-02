@@ -4,7 +4,7 @@ A Cursor plugin with one coaching skill. It places an engineer, eng leader or PM
 
 It's a conversation, not a report. There's no data to gather, no score and nothing to install beyond the plugin: the skill works from what you tell it and what's visible in the chat, using the recognition cues in the framework to place you.
 
-The skill is **manual-only** (`disable-model-invocation: true`). Agent never applies it on its own; it runs only when you invoke it. In Agent chat, type `/ai-proficiency-coach` followed by your question:
+**You invoke it, it doesn't invoke itself** (`disable-model-invocation: true`). Agent never applies it on its own, never assesses you in the background, and never brings up your level while you're working on something else. Reach for it when you want a read — before a 1:1, at the start of a quarter, or when you're not sure what to try next. In Agent chat, type `/ai-proficiency-coach` followed by your question:
 
 ```text
 /ai-proficiency-coach What PL am I?

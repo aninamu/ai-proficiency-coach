@@ -2,7 +2,7 @@
   "name": "ai-proficiency-coach",
   "displayName": "AI Proficiency Coach",
   "version": "0.1.0",
-  "description": "Coaching skill that places an engineer, eng leader or PM on a PL1-PL4 AI proficiency framework through conversation, then suggests 1-2 concrete Cursor next steps for the week and one thing to avoid.",
+  "description": "Run /ai-proficiency-coach when you want a read on your AI proficiency. It places you on the PL1-PL4 framework through conversation, then suggests 1-2 concrete Cursor next steps for the week and one thing to avoid. Invoke-only: it never assesses you in the background.",
   "author": {
     "name": "AI Proficiency Coach contributors"
   },
