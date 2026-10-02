@@ -1,6 +1,7 @@
 ---
 name: ai-proficiency-coach
 description: Coach someone on where they sit on the PL1-PL4 AI proficiency framework from their Cursor usage metadata, name the smallest unmet gate, and give 1-2 concrete Cursor next steps for this week. Use when someone asks "how am I doing with AI?", "what PL am I?", "how do I get to PL2/PL3/PL4?", "what should I try next in Cursor?", pastes or attaches a weekly usage row or admin export, when a manager or tech lead asks about their team's PL mix or never-engaged users, or for any AI proficiency coaching or 1:1 conversation.
+disable-model-invocation: true
 ---
 
 # AI Proficiency Coach
@@ -49,7 +50,7 @@ It applies the section 2 gates cumulatively, then returns the gated and displaye
 
 In two or three sentences:
 
-- The displayed level and its name (e.g. "PL2 · Reusable Agents"), plus the gated level if it differs, and why.
+- The displayed level and its name (e.g. "PL2 · Reusable Agents"), plus the gated level if it differs, and why. Add the current Step's "You'll recognize this stage when…" line from `references/cursor-playbook.md` so the level feels familiar.
 - Pillar scores and composite, noting that the composite is informational and never sets the level.
 - The **smallest unmet gate** for the next level, as a concrete count ("one more skill used in 3 of the 4 weeks").
 - Coach checks (*) next to the level, marked as not affecting it. Say "unknown" for null values.
