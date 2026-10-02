@@ -13,7 +13,7 @@ The skill is available to the agent (`disable-model-invocation: false`), and its
 /ai-proficiency-coach How do I move my team up a level?
 ```
 
-Two reference files do the work: `references/framework.md` for what each level and Step means, and `references/cursor-playbook.md` for the recommendations. Every suggestion comes from the playbook, so the advice is the same whoever asks.
+Two reference files do the work: `references/framework.md` for what each level and Step means, and `references/cursor-playbook.md` for the recommendations. Every suggestion comes from the playbook, so the advice is consistent.
 
 ## Framework at a glance
 
@@ -24,7 +24,7 @@ Two reference files do the work: `references/framework.md` for what each level a
 | In practice | Cursor desktop (editor and Agents Window) is your daily default; Agent handles anything beyond a small edit. | Rules, `AGENTS.md` and skills carry your standards; Plan Mode for big changes; hooks, plugins and MCP extend the agent. | Scoped work goes to Cloud Agents and parallel agents; MCP lets agents act as you; you review. | Event-driven Automations behind approval gates, hooks and an audit trail; others adopt what you build. |
 
 - **Four pillars**: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on your role: AI and cloud commits on the primary branch for a Developer IC, the group's spread for Eng Leadership, accepted agent diffs and Automations for a PM / Specialist.
-- **Levels are cumulative**, so you're roughly where your four pillars agree. Being uneven across them is normal, and the uneven pillar is usually the useful thing to talk about.
+- **Levels are cumulative**, so you're roughly at the lowest level all four pillars reach. Being uneven across them is normal, and the uneven pillar is usually the useful thing to talk about.
 - **It's a placement, not a measurement.** No score, no percentage, and "between Steps 3 and 4" is a perfectly good answer. `framework.md` section 2 lists what each pillar looks like from the outside at each level.
 
 ## Repository layout
@@ -46,7 +46,7 @@ skills/ai-proficiency-coach/
 ### As a local plugin
 
 ```bash
-git clone <this-repo-url> ~/.cursor/plugins/local/ai-proficiency-coach
+git clone https://github.com/aninamu/ai-proficiency-coach.git ~/.cursor/plugins/local/ai-proficiency-coach
 ```
 
 Then restart Cursor, or run **Developer: Reload Window**. Open **Customize** and check that the `ai-proficiency-coach` skill appears under Skills. Invoke it by typing `/ai-proficiency-coach` in Agent chat, or ask in so many words ("what PL am I?").
@@ -82,8 +82,8 @@ If you want this measured across an org rather than coached one person at a time
 
 ## Privacy
 
-- **Nothing is collected.** The skill reads no usage data, no local databases and no telemetry. It makes no network call and writes no files.
-- **It won't go looking.** It doesn't ask for usage exports or dashboards, and it doesn't read your history, prompts, code or diffs to assess you.
+- **Nothing is collected.** The skill reads no usage data or telemetry and calls no APIs; it works from your conversation and, if present, your repo's rules, AGENTS.md and skills files.
+- **It won't go looking.** It doesn't ask for usage exports or dashboards, and it doesn't read your chat history, prompts or diffs to assess you.
 - **No score to pass around.** The output is a Step and a couple of suggestions, not a number that can end up in a spreadsheet.
 - **For coaching, not appraisal.** Say the word and it'll tell you the same.
 
