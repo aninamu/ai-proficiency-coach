@@ -4,7 +4,7 @@ A Cursor plugin with one coaching skill. It places an engineer, eng leader or PM
 
 It's a conversation, not a report. There's no data to gather, no score and nothing to install beyond the plugin: the skill works from what you tell it and what's visible in the chat, using the recognition cues in the framework to place you.
 
-**You invoke it, it doesn't invoke itself** (`disable-model-invocation: true`). Agent never applies it on its own, never assesses you in the background, and never brings up your level while you're working on something else. Reach for it when you want a read — before a 1:1, at the start of a quarter, or when you're not sure what to try next. In Agent chat, type `/ai-proficiency-coach` followed by your question:
+The skill is available to the agent (`disable-model-invocation: false`), and its instructions still say to run only when someone asks to be coached. Reach for it when you want a read — before a 1:1, at the start of a quarter, or when you're not sure what to try next. In Agent chat, type `/ai-proficiency-coach` followed by your question:
 
 ```text
 /ai-proficiency-coach What PL am I?
@@ -49,7 +49,7 @@ skills/ai-proficiency-coach/
 git clone <this-repo-url> ~/.cursor/plugins/local/ai-proficiency-coach
 ```
 
-Then restart Cursor, or run **Developer: Reload Window**. Open **Customize** and check that the `ai-proficiency-coach` skill appears under Skills. Invoke it by typing `/ai-proficiency-coach` in Agent chat. Because the skill is manual-only, asking "what PL am I?" without the slash command won't load it.
+Then restart Cursor, or run **Developer: Reload Window**. Open **Customize** and check that the `ai-proficiency-coach` skill appears under Skills. Invoke it by typing `/ai-proficiency-coach` in Agent chat, or ask in so many words ("what PL am I?").
 
 Notes:
 
