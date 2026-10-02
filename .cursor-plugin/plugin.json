@@ -2,11 +2,11 @@
   "name": "ai-proficiency-coach",
   "displayName": "AI Proficiency Coach",
   "version": "0.1.0",
-  "description": "Coaching skill that places an engineer, eng leader or PM on a PL1-PL4 AI proficiency framework from their Cursor usage metadata, names the smallest unmet gate, and suggests 1-2 concrete Cursor next steps.",
+  "description": "Coaching skill that places an engineer, eng leader or PM on a PL1-PL4 AI proficiency framework through conversation, then suggests 1-2 concrete Cursor next steps for the week and one thing to avoid.",
   "author": {
     "name": "AI Proficiency Coach contributors"
   },
   "license": "MIT",
-  "keywords": ["coaching", "ai-proficiency", "adoption", "enablement", "skills", "analytics"],
+  "keywords": ["coaching", "ai-proficiency", "adoption", "enablement", "skills"],
   "logo": "assets/logo.svg"
 }

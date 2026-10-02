@@ -1,24 +1,24 @@
 # Cursor playbook: Steps 1-8
 
-Use this to turn a smallest unmet gate into a concrete Cursor action. Each Step lists the Cursor features it relies on, a 10-minute exercise, the data-contract fields the exercise moves, what to avoid, and what the org has to unblock. Thresholds live only in `framework.md` section 2; actions live only here.
+Use this to turn what's holding someone back into a concrete Cursor action. Each Step lists a recognition cue, the Cursor features it relies on, a 10-minute exercise, what to avoid, and what the org has to unblock. What each level means lives in `framework.md`; actions live only here.
 
-Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 6 and 8 for knowledge work outside coding; it never counts toward a gate.
+Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 6 and 8 for knowledge work outside coding; it is never required.
 
-## Gap → first action
+## What's holding them back → first action
 
-| Smallest unmet gate (field) | First Cursor action | Step |
+| If the thing holding them back is… | First Cursor action | Step |
 |---|---|---|
-| `active_days` | Open Cursor first thing each workday. Start the day's first task in Agent, not by hand. | 1-2 |
-| `agent_requests` vs `chat_requests` | When you catch yourself asking "how would I…", switch the question to an Agent task that makes the change, then review the diff. | 2 |
-| `plan_mode_uses` | Press Shift+Tab in the chat input to rotate to Plan Mode for any change over an hour. Edit the plan, then build. | 2-3 |
-| `skills_in_2of4_weeks` / `skills_in_3of4_weeks` | Turn a workflow you repeat weekly into a skill with `/create-skill`, then invoke it with `/skill-name` every time that task comes up. | 3-4 |
-| `primary_ai_commit_share` / `commits_with_ai_lines` | Let Agent or Tab write the change. Run tests, then merge to the primary branch rather than re-typing the change by hand. | 1-2 |
-| `cloud_agent_runs` / `primary_cloud_commits` | Hand one well-scoped ticket to a Cloud Agent. Review its PR and merge it. | 5 |
-| `mcp_days` | Connect one approved MCP server and use it on a real ticket, a few days a week. | 4, 6 |
-| `automations_active_3of4_weeks` | Create one owned, recurring Automation with `/automate`. Keep it running week over week. | 6-7 |
-| `team_rules_hooks_authored` | Promote a proven project rule or hook to a team rule or team hook. If an admin saves it, they log you in the author log. | 8 |
-| `accepted_diff_days` (PM) | Use Agent to make small, real edits (spec docs, copy, config, test plans) and accept the diffs you agree with. | 1-3 |
-| Leader group shares / never-engaged | See "Leaders" at the end. | — |
+| Cursor isn't part of most days yet | Open Cursor first thing each workday. Start the day's first task in Agent, not by hand. | 1-2 |
+| They ask about code more than they change it | When you catch yourself asking "how would I…", switch the question to an Agent task that makes the change, then review the diff. | 2 |
+| Big changes start without a plan | Press Shift+Tab in the chat input to rotate to Plan Mode for any change over an hour. Edit the plan, then build. | 2-3 |
+| The same context gets re-explained every chat | Turn a workflow you repeat weekly into a skill with `/create-skill`, then invoke it with `/skill-name` every time that task comes up. | 3-4 |
+| AI output rarely reaches the primary branch | Let Agent or Tab write the change. Run tests, then merge rather than re-typing it by hand. | 1-2 |
+| Everything waits on them to run it | Hand one well-scoped ticket to a Cloud Agent. Review its PR and merge it. | 5 |
+| Agents can't see the tickets or docs they need | Connect one approved MCP server and use it on a real ticket, a few days a week. | 4, 6 |
+| Nothing runs unless they start it | Create one owned, recurring Automation with `/automate`. Keep it running week over week. | 6-7 |
+| Their setup only works for them | Promote a proven project rule or hook to a team rule or team hook, and publish a skill with an owner. | 8 |
+| (PM) They read with AI but don't change anything | Use Agent to make small, real edits (spec docs, copy, config, test plans) and accept the diffs you agree with. | 1-3 |
+| They lead a group | See "Leaders" at the end. | — |
 
 ## PL1 · AI-Assisted
 
@@ -34,7 +34,7 @@ You'll recognize this stage when… you mostly use Tab and the occasional chat q
 2. Select one function and use inline edit (Cmd/Ctrl+K) to add input validation. Review the diff.
 3. In the Agents Window, give Agent one real task, such as "write unit tests for `<function>` and run them". Read the diff before you keep it.
 
-**Moves**: `active_days`, `agent_requests`, `commits_with_ai_lines`, `accepted_diff_days`.
+**You'll notice**: you open Cursor without thinking about it, and Agent has written code you kept.
 
 **Avoid**: waiting until you're stuck to try AI; one-line prompts with no context; stopping at Tab instead of giving Agent a real task.
 
@@ -52,7 +52,7 @@ You'll recognize this stage when… you reach for Agent most days, but you keep 
 2. Answer its clarifying questions. Edit the plan until it matches what you'd do, then build it.
 3. Write down every piece of context you had to re-explain. That list becomes your first rule or skill in Step 3.
 
-**Moves**: `plan_mode_uses`, `agent_requests` vs `chat_requests`, `primary_ai_commit_share`.
+**You'll notice**: big changes start with a plan instead of a guess, and AI-written code is reaching your primary branch.
 
 **Avoid**: doing by hand what Agent should do; accepting diffs without running tests; re-typing the same context every chat.
 
@@ -73,7 +73,7 @@ You'll recognize this stage when… you keep pasting the same instructions into 
 3. Add `AGENTS.md` at the repo root listing how to build, test and lint.
 4. Put the skill on your calendar: invoke `/skill-name` every time that task comes up this week.
 
-**Moves**: `skills_in_2of4_weeks`, `plan_mode_uses`; coach check `repo_rules_in_place`*.
+**You'll notice**: you stop re-explaining your conventions, and the repo tells the agent how to build and test itself.
 
 **Avoid**: long, vague rules; skills nobody invokes; skipping Plan Mode on big changes.
 
@@ -97,7 +97,7 @@ You'll recognize this stage when… your rules and skills work well for you, but
 2. Add one line to your main skill: "run the tests and report results before saying done".
 3. Publish your most-used skill to the team marketplace from Customize → Skills.
 
-**Moves**: `skills_in_3of4_weeks`, `mcp_days`.
+**You'll notice**: a teammate gets the same result you do, and checks run without you remembering them.
 
 **Avoid**: trusting output because it looks right; installing plugins or MCP servers you haven't vetted; keeping a setup only you can use. When a rule fails, fix the rule, not the output.
 
@@ -122,7 +122,7 @@ You'll recognize this stage when… you're waiting on one agent to finish when y
 2. In Plan Mode, write the acceptance criteria and the test that proves it's done.
 3. Start a Cloud Agent with that plan. Come back to the PR, review it like a teammate's, and merge it to the primary branch.
 
-**Moves**: `cloud_agent_runs`, `primary_cloud_commits`, `primary_cloud_commit_weeks`; coach check `agent_prs_human_reviewed`*.
+**You'll notice**: you're reviewing PRs you didn't write, and you started the next task while the first was still running.
 
 **Avoid**: parallelizing tightly coupled work; delegating without a clear spec; letting agent PRs pile up unreviewed.
 
@@ -145,7 +145,7 @@ You'll recognize this stage when… you copy ticket details and doc links into c
 2. Run `/automate` with "every weekday at 9am, triage new issues labeled bug in `<repo>` and open a draft fix PR for my review". Name yourself as owner.
 3. Check what tools and repos the Automation can touch before you activate it.
 
-**Moves**: `mcp_days`, `automations_active_3of4_weeks`.
+**You'll notice**: you stop copying ticket details into chat, and something useful is already done when you sit down.
 
 **Avoid**: granting broad tokens "to make it work"; Automations nobody owns; skipping the check on what an agent did in your name.
 
@@ -192,7 +192,7 @@ echo '{"permission":"ask","user_message":"Schema change detected: approve before
 
 Then write the rollback plan and kill switch for your Automation before you widen its triggers.
 
-**Moves**: `automations_active_3of4_weeks`, `primary_cloud_commit_weeks`; coach checks `governance_checklist_signed_off`* and `no_unresolved_high_sev_bugbot`*.
+**You'll notice**: an agent runs unattended and you're comfortable with it, because the risky paths stop for your approval.
 
 **Avoid**: automating without a rollback path; granting more permission than the task needs; ignoring alerts.
 
@@ -211,11 +211,11 @@ You'll recognize this stage when… teammates keep asking for your rules, skills
 
 **10-minute exercise**
 
-1. Pick your most-used project rule or hook and propose it as a team rule or team hook. If an admin saves it, ask them to record you in the author log.
+1. Pick your most-used project rule or hook and propose it as a team rule or team hook.
 2. Publish one skill to the team marketplace, with a README and an owner.
 3. Put a quarterly review on your calendar to retire unused Automations.
 
-**Moves**: `team_rules_hooks_authored`; coach check `skills_adopted_by_others`*.
+**You'll notice**: other teams are running what you built, and you're not the one answering the setup questions.
 
 **Avoid**: building only for yourself; shipping shared assets without an owner or docs; chasing autonomy for its own sake.
 

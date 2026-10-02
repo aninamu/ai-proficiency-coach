@@ -10,7 +10,7 @@
     {
       "name": "ai-proficiency-coach",
       "source": "./",
-      "description": "Place yourself or your team on the PL1-PL4 AI proficiency framework from Cursor usage metadata and get 1-2 concrete Cursor next steps."
+      "description": "Find where you sit on the PL1-PL4 AI proficiency framework and get 1-2 concrete Cursor next steps for the week."
     }
   ]
 }

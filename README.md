@@ -1,17 +1,19 @@
 # AI Proficiency Coach
 
-A Cursor plugin with one coaching skill. It shows an engineer, eng leader or PM where they sit on a four-level AI proficiency framework (PL1-PL4), based on their Cursor usage metadata. Then it gives one or two concrete Cursor next steps for the week and one thing to avoid.
+A Cursor plugin with one coaching skill. It places an engineer, eng leader or PM on a four-level AI proficiency framework (PL1-PL4, eight Steps), then gives one or two concrete Cursor next steps for the week and one thing to avoid.
+
+It's a conversation, not a report. There's no data to gather, no score and nothing to install beyond the plugin: the skill works from what you tell it and what's visible in the chat, using the recognition cues in the framework to place you.
 
 The skill is **manual-only** (`disable-model-invocation: true`). Agent never applies it on its own; it runs only when you invoke it. In Agent chat, type `/ai-proficiency-coach` followed by your question:
 
 ```text
-/ai-proficiency-coach How am I doing with AI? Here's my weekly row: <paste or @-mention the file>
+/ai-proficiency-coach What PL am I?
 /ai-proficiency-coach How do I get to PL3?
-/ai-proficiency-coach Here's my team's export. What's our PL mix, and who's never engaged?
-/ai-proficiency-coach I have no data. Can we do a quick self-assessment?
+/ai-proficiency-coach What should I try next in Cursor?
+/ai-proficiency-coach How do I move my team up a level?
 ```
 
-The skill is grounded in one framework (`skills/ai-proficiency-coach/references/framework.md`) and one input contract (`references/data-contract.md`). A dependency-free scorer (`scripts/score.py`) applies the gates, so levels are computed the same way every time.
+Two reference files do the work: `references/framework.md` for what each level and Step means, and `references/cursor-playbook.md` for the recommendations. Every suggestion comes from the playbook, so the advice is the same whoever asks.
 
 ## Framework at a glance
 
@@ -21,11 +23,9 @@ The skill is grounded in one framework (`skills/ai-proficiency-coach/references/
 | Steps | 1 Explore · 2 Cursor-first | 3 Codify · 4 Standardize & verify | 5 Delegate & parallelize · 6 Agents act as you | 7 Governed pipelines · 8 Multiply |
 | In practice | Cursor desktop (editor and Agents Window) is your daily default; Agent handles anything beyond a small edit. | Rules, `AGENTS.md` and skills carry your standards; Plan Mode for big changes; hooks, plugins and MCP extend the agent. | Scoped work goes to Cloud Agents and parallel agents; MCP lets agents act as you; you review. | Event-driven Automations behind approval gates, hooks and an audit trail; others adopt what you build. |
 
-- **Four pillars**: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on persona: AI and cloud commits on the primary branch for a Developer IC, the group's level mix for Eng Leadership, and accepted agent diffs and Automations for a PM / Specialist.
-- **Gates are cumulative.** Your level is the highest level with no failed pillar gate at that level or below.
-- **Unknown is not zero.** A gate with no data behind it never pushes you down a level; the level is reported as provisional (an upper bound) and the unknown pillar is named. Someone with no data at all isn't scored, rather than being called PL0.
-- **Coach checks (\*)**, such as repo rules / `AGENTS.md`, human review of agent PRs and the governance checklist, are shown next to the level and never set it.
-- Trailing 28 days, recomputed from scratch every Monday. There's no smoothing, so the level is one week's snapshot and a quiet week can move it. All thresholds are in `framework.md` section 2, the single source of truth.
+- **Four pillars**: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on your role: AI and cloud commits on the primary branch for a Developer IC, the group's spread for Eng Leadership, accepted agent diffs and Automations for a PM / Specialist.
+- **Levels are cumulative**, so you're roughly where your four pillars agree. Being uneven across them is normal, and the uneven pillar is usually the useful thing to talk about.
+- **It's a placement, not a measurement.** No score, no percentage, and "between Steps 3 and 4" is a perfectly good answer. `framework.md` section 2 lists what each pillar looks like from the outside at each level.
 
 ## Repository layout
 
@@ -37,14 +37,8 @@ assets/logo.svg
 skills/ai-proficiency-coach/
   SKILL.md               # the coaching procedure
   references/
-    framework.md         # what each level means, and the gates (section 2 is authoritative)
-    data-contract.md     # weekly input row and Cursor API source per field
-    cursor-playbook.md   # Step -> features, exercise, what to avoid, org unblock
-  scripts/score.py       # scorer (Python 3 standard library only)
-  examples/
-    fake-ic-row.json     # the data-contract worked example (FAKE data)
-    fake-team.csv        # four FAKE people, for --team
-tests/test_score.py      # unit tests, including the worked example
+    framework.md         # what each level and Step means; section 2 is what each looks like
+    cursor-playbook.md   # Step -> recognition cue, features, exercise, avoid, org unblock
 ```
 
 ## Install
@@ -71,67 +65,38 @@ Notes:
 
 To add it to an existing team marketplace repo instead, add an entry to that repo's `marketplace.json` that points at a copy of this plugin folder.
 
-## Feeding it data
+## How it places you
 
-The coach works best on a real weekly row. It never fabricates data. If no row is available, it runs a short self-assessment and labels the result **self-reported**.
+There's nothing to feed it. The skill reads the "You'll recognize this stage when…" cue for each Step against what's already visible — how you're working with it, what you're asking for, and what your repo has in it — then asks one or two short questions to confirm before naming a Step.
 
-### Where the numbers come from (Enterprise)
+The questions are about how you work, never for counts:
 
-Every field in the row maps to a Cursor Admin, Analytics or AI Code Tracking API endpoint. The field-by-field derivation is in `references/data-contract.md`. In summary:
+- "When something will take more than an hour, do you start in Plan Mode or go straight in?"
+- "Is there a workflow you've turned into a rule or skill, or do you re-explain it each time?"
+- "Have you handed a whole ticket to a Cloud Agent and reviewed the PR?"
+- "Does anything run without you starting it?"
 
-| Pillar | Endpoint → fields |
-|---|---|
-| Identity | `GET /teams/members` → `email`, `id`, `name`, `isRemoved` |
-| Adoption | `POST /teams/daily-usage-data` (paginate with `page`/`pageSize` to get `isActive`) → `isActive`, `agentRequests`, `chatRequests`, `totalTabsAccepted`, `cmdkUsages` |
-| Reuse | `GET /analytics/by-user/skills` → `skill_name`, `event_date`, `usage` · `GET /analytics/by-user/plans` → `usage` · `GET /teams/audit-logs?eventTypes=team_rule,team_hook` → `user_email` |
-| Orchestration | `POST /teams/filtered-usage-events` → `cloudAgentId`, `automationId`, `serviceAccountId`, `userEmail`, `timestamp` · `GET /analytics/by-user/mcp` → `mcp_server_name`, `event_date`, `usage` |
-| Outcomes · IC | `GET /analytics/ai-code/commits` → `isPrimaryBranch`, `commitSource`, `tabLinesAdded`, `composerLinesAdded`, `commitTs` (drop `message`) |
-| Outcomes · PM | `GET /analytics/by-user/agent-edits` → `total_accepted_diffs`, `event_date` |
-| Outcomes · Leader | `GET /teams/directory-groups/:groupId/members` → `email`, joined to computed levels |
+Then it names the Step, gives one or two actions from that Step's playbook entry, and one thing to avoid.
 
-A typical weekly pipeline, run by an admin each Monday:
-
-1. Pull the trailing 28 days from each endpoint. Analytics endpoints default to 7 days, so pass `startDate=28d`. Admin endpoints take epoch-ms `startDate`/`endDate`. Respect the rate limits: 20/min for daily usage and audit logs, 60/min for usage events.
-2. Bucket the window into W1-W4 and build one row per person, following `data-contract.md` §2. Add persona from HR/SCIM, plus the manual lists: the author log, the Automation owner list and coach checks.
-3. Score everyone, then fill each leader's `group_*` fields from their members' levels, and score the leaders.
-4. Give each person their own row, and each leader the team summary, to use with the skill.
-
-Keep API keys in your environment or secret manager. Never commit them, and never paste them into chat.
-
-### Running the scorer directly
-
-```bash
-cd skills/ai-proficiency-coach
-python3 scripts/score.py examples/fake-ic-row.json          # one person
-python3 scripts/score.py examples/fake-team.csv --team      # team mix
-python3 scripts/score.py examples/fake-ic-row.json --json   # machine-readable
-```
-
-On the fake worked example, the output is `PL2`, and the two smallest gaps to PL3 are one more skill used in ≥3 of 4 weeks and one more primary-branch cloud commit.
+If you want this measured across an org rather than coached one person at a time, that's a different exercise, built on the Cursor Admin, Analytics and AI Code Tracking APIs (Enterprise). This plugin deliberately doesn't do it: a number invites comparison, and the next step is the part that actually helps.
 
 ## Privacy
 
-- **Usage metadata only.** The coach never asks for, opens or quotes chats, prompts, code, diffs or commit messages. Drop the commit `message` field at ingestion, and don't call conversation-level or file-level blame endpoints.
-- **For coaching, not appraisal.** The level isn't used in appraisals until it has been calibrated.
-- **Leaders see aggregates by default.** The team view reports the PL mix and never-engaged count.
-- All example data in this repo is fake (`example.com` addresses, `FAKE` ids).
+- **Nothing is collected.** The skill reads no usage data, no local databases and no telemetry. It makes no network call and writes no files.
+- **It won't go looking.** It doesn't ask for usage exports or dashboards, and it doesn't read your history, prompts, code or diffs to assess you.
+- **No score to pass around.** The output is a Step and a couple of suggestions, not a number that can end up in a spreadsheet.
+- **For coaching, not appraisal.** Say the word and it'll tell you the same.
 
 ## Limitations
 
-- The Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers only the top-level repo of a workspace. Where it doesn't reach, the IC Outcomes inputs come back empty, so most levels will be provisional until repo coverage improves. Send nulls rather than zeros for commit fields you can't see: a zero reads as "wrote no AI code" and will hold someone at PL0.
-- Without an export, the result is self-reported.
-- Date-ranged endpoints cap at 30 days, which is enough for the 28-day window.
-- Some items can't be verified by API, so they are coach checks or maintained lists: repo rules / `AGENTS.md`, skill authorship and adoption by others, Bugbot findings per person, the governance checklist, Automation owners under service accounts, team rule or hook authors saved by an admin, parallel agents, output quality, and persona. See `framework.md` "Not verifiable by API".
-- Audit-log `team_rule` / `team_hook` events are all counted as authored for now. Whether `event_data` separates create, update and delete is an open item in the data contract.
-- The level is recomputed from one 28-day window with no smoothing, so holiday or on-call weeks can move it. Treat a single week as a conversation starter, not a trend.
+- The placement is as good as the conversation. Someone having an unusual week, or being terse, will be placed roughly — which is why it says "around Step 3" rather than claiming precision.
+- It only knows what you tell it. If you undersell what you're already doing, the next step will be one you've outgrown; say so and it'll move up.
+- Nobody is "at" one Step. Pillars move at different speeds, and the uneven one is usually the interesting conversation.
+- Leaders get coached on their own work plus one or two org unblocks. For a real picture of how a group is spread, you need data this plugin doesn't collect.
 
 ## Development
 
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-If you change a threshold in `framework.md` section 2, make the same change in `scripts/score.py` and the tests. Keep per-step coaching copy (actions, exercises, what to avoid, org unblocks) in `cursor-playbook.md` only, and gates in `framework.md` section 2 only.
+Three markdown files, no code and nothing to run. Keep the actions, exercises, what to avoid and org unblocks in `cursor-playbook.md` only, and what each level means in `framework.md` only, so there's one place to change each.
 
 ## License
 
