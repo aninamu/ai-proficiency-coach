@@ -50,7 +50,7 @@ It applies the section 2 gates cumulatively, then returns the gated and displaye
 
 In two or three sentences:
 
-- The displayed level and its name (e.g. "PL2 · Reusable Agents"), plus the gated level if it differs, and why.
+- The displayed level and its name (e.g. "PL2 · Reusable Agents"), plus the gated level if it differs, and why. Add the current Step's "You'll recognize this stage when…" line from `references/cursor-playbook.md` so the level feels familiar.
 - Pillar scores and composite, noting that the composite is informational and never sets the level.
 - The **smallest unmet gate** for the next level, as a concrete count ("one more skill used in 3 of the 4 weeks").
 - Coach checks (*) next to the level, marked as not affecting it. Say "unknown" for null values.

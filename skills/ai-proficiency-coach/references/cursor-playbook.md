@@ -24,6 +24,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 
 ### Step 1 · Explore
 
+You'll recognize this stage when… you mostly use Tab and the occasional chat question, and you still write most of your code by hand.
+
 **Cursor features**: Tab completions; inline edit (Cmd/Ctrl+K) on a selected block; Ask with @-context for the right files; Agent in the Agents Window on a first real task; the diff view to review changes before keeping them.
 
 **10-minute exercise**
@@ -35,6 +37,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 **Moves**: `active_days`, `agent_requests`, `commits_with_ai_lines`, `accepted_diff_days`.
 
 ### Step 2 · Cursor-first
+
+You'll recognize this stage when… you reach for Agent most days, but you keep re-explaining the same context at the start of every chat.
 
 **Cursor features**: Agent as the default for anything beyond a small edit, in the editor or the Agents Window; Plan Mode (Shift+Tab, or the mode picker); @-context for files, docs and terminal output; model choice per task; diff review before keeping changes.
 
@@ -50,6 +54,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 
 ### Step 3 · Codify
 
+You'll recognize this stage when… you keep pasting the same instructions into chat and wish the agent just knew your conventions.
+
 **Cursor features**: project rules in `.cursor/rules/*.mdc` (create one with `/create-rule`); `AGENTS.md` for build, test and lint steps; skills in `.cursor/skills/<name>/SKILL.md` (create one with `/create-skill`), picked up by Agent automatically or invoked with `/skill-name`; Customize to view and manage rules and skills; Plan Mode before multi-file changes.
 
 **10-minute exercise**
@@ -62,6 +68,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 **Moves**: `skills_in_2of4_weeks`, `plan_mode_uses`; coach check `repo_rules_in_place`*.
 
 ### Step 4 · Standardize & verify
+
+You'll recognize this stage when… your rules and skills work well for you, but teammates get different results and you still check every output by eye.
 
 **Cursor features**:
 
@@ -83,6 +91,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 
 ### Step 5 · Delegate & parallelize
 
+You'll recognize this stage when… you're waiting on one agent to finish when you could be starting the next task with another.
+
 **Cursor features**:
 
 - Cloud Agents. Start one by selecting Cloud in the dropdown under the agent input in Cursor Desktop, from cursor.com/agents, by commenting `@cursor` on a GitHub issue or PR, or with `@cursor` in Slack. Each Cloud Agent works on its own branch and opens a PR.
@@ -99,6 +109,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 **Moves**: `cloud_agent_runs`, `primary_cloud_commits`, `primary_cloud_commit_weeks`; coach check `agent_prs_human_reviewed`*.
 
 ### Step 6 · Agents act as you
+
+You'll recognize this stage when… you copy ticket details and doc links into chat by hand, and the same morning chores still wait for you to kick them off.
 
 **Cursor features**:
 
@@ -118,6 +130,8 @@ Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 
 ## PL4 · Governed Autonomy
 
 ### Step 7 · Governed pipelines
+
+You'll recognize this stage when… your agents do good work, but only when you start them, and you'd hesitate to let one run unattended without guardrails.
 
 **Cursor features**:
 
@@ -157,6 +171,8 @@ Then write the rollback plan and kill switch for your Automation before you wide
 **Moves**: `automations_active_3of4_weeks`, `primary_cloud_commit_weeks`; coach checks `governance_checklist_signed_off`* and `no_unresolved_high_sev_bugbot`*.
 
 ### Step 8 · Multiply
+
+You'll recognize this stage when… teammates keep asking for your rules, skills and Automations, and you're answering the same setup questions twice.
 
 **Cursor features**:
 
