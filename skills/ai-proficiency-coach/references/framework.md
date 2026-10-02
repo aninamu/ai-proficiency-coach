@@ -17,12 +17,11 @@
 
 ### Four proficiency levels
 
-| | PL1 | PL2 | PL3 | PL4 |
+| | PL1 | PL2 | PL3 (org target) | PL4 |
 |---|---|---|---|---|
-| Level | PL1 | PL2 | PL3 (org target) | PL4 |
 | Name | AI-Assisted | Reusable Agents | Delegational Orchestration | Governed Autonomy |
-| Maturity stage | Stage 1: Assisted individuals | Stage 2: Codified team workflows | Stage 3: AI SDLC (Software Factory) | Stage 3 → 4: AI SDLC → Cross-functional AI Transformation |
-| One-liner | Cursor desktop app (IDE and Agents window) is your daily default for everyday tasks. | Rules and skills allow agents to persist context and behave according to your standards; hooks, plugins and MCP extend them to adapt to your tools and workflows. | You delegate scoped work to Cloud Agents and parallel agents, and agents act as you. You review. | Event-driven agents run behind approval gates, hooks and an audit trail. Others adopt what you build. |
+| Maturity stage | Stage 1: Assisted individuals | Stage 2: Codified team workflows | Stage 3: AI SDLC (Software Factory) | Stage 3 → 4: AI SDLC → Cross-functional AI transformation |
+| One-liner | Cursor desktop app (IDE and Agents Window) is your daily default for everyday tasks. | Rules and skills allow agents to persist context and behave according to your standards; hooks, plugins and MCP extend them to adapt to your tools and workflows. | You delegate scoped work to Cloud Agents and parallel agents, and agents act as you. You review. | Event-driven agents run behind approval gates, hooks and an audit trail. Others adopt what you build. |
 | Steps | Step 1 · Explore<br>Step 2 · Cursor-first | Step 3 · Codify<br>Step 4 · Standardize & verify | Step 5 · Delegate & parallelize<br>Step 6 · Agents act as you | Step 7 · Governed pipelines<br>Step 8 · Multiply |
 
 ### The four pillars
@@ -30,7 +29,7 @@
 | Pillar | Overview description |
 |---|---|
 | Adoption | Regular Cursor use; from PL2, Agent requests at least match chat requests. |
-| Reuse | Skills reused across weeks and Plan mode; team rules or hooks authored at PL4. Hooks, plugins and MCP are encouraged at PL2, not gated. |
+| Reuse | Skills reused across weeks and Plan Mode; team rules or hooks authored at PL4. Hooks, plugins and MCP are encouraged at PL2, not gated. |
 | Orchestration | Cloud Agent runs and MCP use from PL3; Automations running week over week at PL4. |
 | Outcomes | Persona-specific: AI and cloud commits on the primary branch (IC), team level mix (Leader), accepted agent diffs and Automations (PM). |
 
@@ -48,8 +47,8 @@ _Including, but not limited to:_
 
 - **Guardrails**: Least-privilege access, human review on every agent PR, owned Automations behind approval gates and an audit trail.
 - **Org unblocks**: Learning time, shared rules and skills, Cloud Agents, an approved MCP list, service accounts. Per-step detail in `cursor-playbook.md`.
-- **Coach**: A Cursor skill reads your weekly progress and suggests next steps.
-- **Privacy**: We only see how much people use Cursor, never their chats or code. The level is for coaching; it's not used in appraisals until it's been calibrated.
+- **Coach**: A Cursor skill (/ai-proficiency-coach) walks you through a short conversation to place your level and suggest next steps; it reads no usage data.
+- **Privacy**: The skill collects nothing. The level is for coaching only and is not used in performance appraisals.
 
 > **Principle**: PL4 is governed autonomy, not zero human intervention: humans own the risk gates and reward outcomes.
 
@@ -72,19 +71,19 @@ Things to notice but never score: repo rules and `AGENTS.md` in place, human rev
 
 ## PL1 | AI-Assisted
 
-_Proficiency level 1 of 4._ Header: Assisted individuals. Cursor desktop becomes your home base, in the editor and the Agents window.
+_Proficiency level 1 of 4._ Header: Assisted individuals. Cursor desktop becomes your home base, in the editor and the Agents Window.
 
-**Why this matters to you**: You stop doing the tedious parts by hand. In the editor, Tab and inline edit handle the obvious lines; in the Agents window, Agent explains unfamiliar code, drafts tests and fixes the boring bugs. You get back time lost to lookups, boilerplate and context-switching, and knowing when to type, edit inline or brief an agent is a skill that goes with you to any team.
+**Why this matters to you**: You stop doing the tedious parts by hand. In the editor, Tab and inline edit handle the obvious lines; in the Agents Window, Agent explains unfamiliar code, drafts tests and fixes the boring bugs. You get back time lost to lookups, boilerplate and context-switching, and knowing when to type, edit inline or brief an agent is a skill that goes with you to any team.
 
 **Why it matters to the organization**: One shared baseline across teams: everyone on the same Cursor setup, licensed seats in real use, and a clear starting point for the software factory.
 
 ### Step 1 · Explore
 
-_“This can actually help.”  You get fluent in Cursor desktop, in the editor and the Agents window._
+_“This can actually help.”  You get fluent in Cursor desktop, in the editor and the Agents Window._
 
 **What it looks like**
 
-In the editor, Tab completes the obvious lines, inline edit rewrites a selected block, and Ask explains an unfamiliar module. In the Agents window, you hand Agent a first real task, such as a unit test or a small bug fix, and review the diff before you keep it.
+In the editor, Tab completes the obvious lines, inline edit rewrites a selected block, and Ask explains an unfamiliar module. In the Agents Window, you hand Agent a first real task, such as a unit test or a small bug fix, and review the diff before you keep it.
 
 **To advance**
 
@@ -97,7 +96,7 @@ _“Coding starts in Cursor.”  Agent is your default for anything beyond a sma
 
 **What it looks like**
 
-Coding work starts in Cursor, in whichever surface fits. Small edits stay in the editor with Tab and inline edit. Anything bigger, such as a test suite, a refactor or a new API, goes to Agent in the editor or the Agents window; you review the diff and keep what's right.
+Coding work starts in Cursor, in whichever surface fits. Small edits stay in the editor with Tab and inline edit. Anything bigger, such as a test suite, a refactor or a new API, goes to Agent in the editor or the Agents Window; you review the diff and keep what's right.
 
 **To advance**
 
@@ -106,11 +105,11 @@ Coding work starts in Cursor, in whichever surface fits. Small edits stay in the
 
 ### At this level, by persona
 
-_One shared scale; the evidence behind each level differs by role._
+_One shared scale; the signs of each level differ by role._
 
-- **Developer IC**: The editor and the Agents window are both part of your day; Agent takes tests, refactors and debugging. Evidence: active days, Agent share of requests, AI lines in your commits.
+- **Developer IC**: The editor and the Agents Window are both part of your day; Agent takes tests, refactors and debugging. Signs: you're in Cursor most workdays, Agent handles more than small edits, and AI-written code ends up in your commits.
 - **Eng Leadership**: Use Cursor on your own work (reviews, design docs, scripts) and get your group active. Follow up on the never-engaged list.
-- **PM / Specialist**: Use Ask and Agent in Cursor desktop to read code, draft specs and answer “how does this work?” without waiting for an engineer. Evidence: active days, accepted agent diffs.
+- **PM / Specialist**: Use Ask and Agent in Cursor desktop to read code, draft specs and answer “how does this work?” without waiting for an engineer. Signs: you're in Cursor most workdays, and you accept agent edits on real work.
 - **Guardrails & HITL**: Know which code and data are allowed in Cursor. Review every diff before you accept it: you own what you merge.
 
 **Key Shift**: From “AI is something I try now and then” to “coding starts in Cursor, and Agent takes anything bigger than a small edit.”
@@ -129,12 +128,12 @@ _“I wrote it down once.”  Rules and skills remember how you work._
 
 **What it looks like**
 
-You turn what you keep repeating into rules and skills: a project rule for conventions, AGENTS.md for how the repo builds and tests, a skill for your PR review or migration workflow. You manage them in Customize, and big changes start in Plan mode.
+You turn what you keep repeating into rules and skills: a project rule for conventions, AGENTS.md for how the repo builds and tests, a skill for your PR review or migration workflow. You manage them in Customize, and big changes start in Plan Mode.
 
 **To advance**
 
 - Next: Step 4.
-- Signal: your skills get reused week to week, big changes start in Plan mode, and repo rules / AGENTS.md are in place*.
+- Signal: your skills get reused week to week, big changes start in Plan Mode, and repo rules / AGENTS.md are in place.
 
 ### Step 4 · Standardize & verify
 
@@ -151,16 +150,16 @@ Each task type starts from a skill with tests in the loop, and team rules keep o
 
 ### At this level, by persona
 
-_One shared scale; the evidence behind each level differs by role._
+_One shared scale; the signs of each level differ by role._
 
-- **Developer IC**: Your repo has rules, AGENTS.md and skills you use every week, plus the hooks and MCP servers your work needs. Evidence: skills reused across weeks, Plan mode, AI lines on the primary branch.
-- **Eng Leadership**: Sponsor shared rules and skills per repo, an approved plugin and MCP list, and tests and Bugbot as the default. Team outcome: your group's share at PL2+.
-- **PM / Specialist**: Codify recurring work as skills (spec templates, release notes, test plans) and pull in docs and tickets via MCP. Evidence: skills reused across weeks, accepted agent diffs.
+- **Developer IC**: Your repo has rules, AGENTS.md and skills you use every week, plus the hooks and MCP servers your work needs. Signs: you reuse the same skills week to week, start big changes in Plan Mode, and AI-written code lands on the primary branch.
+- **Eng Leadership**: Sponsor shared rules and skills per repo, an approved plugin and MCP list, and tests and Bugbot as the default. Team outcome: how much of your group works at PL2 or above.
+- **PM / Specialist**: Codify recurring work as skills (spec templates, release notes, test plans) and pull in docs and tickets via MCP. Signs: you reuse the same skills week to week, and you accept agent edits on real work.
 - **Guardrails & HITL**: Rules and hooks are where guardrails start: blocked shell commands, protected paths, no secrets in context. Only vetted plugins and MCP servers. Keep a human review on every merge.
 
 **Key Shift**: From “re-explain it every time” to “rules and skills set it up once, and I get the same result every time.”
 
-## PL3 | Delegational Orchestration  (Org Target)
+## PL3 | Delegational Orchestration (org target)
 
 _Proficiency level 3 of 4._ Header: AI SDLC (Software Factory).  You hand scoped work to parallel agents that act on your behalf, and review the results.
 
@@ -187,7 +186,7 @@ _“My agents use my tools.”  With your access, inside guardrails._
 
 **What it looks like**
 
-Agents read the Jira ticket, check Confluence and open the PR as you through MCP. A scheduled Automation triages new issues each morning and drafts fixes for your review. For non-code work, the same pattern can extend to your other tools (optional), for example Grok Bot for knowledge-work tasks outside the editor.
+Agents read the Jira ticket, check Confluence and open the PR as you through MCP. A scheduled Automation triages new issues each morning and drafts fixes for your review. For non-code work, the same pattern can extend to your other tools (optional), for example Grok Bot. Grok Bot is an optional agent for knowledge work outside the editor, such as IT, enablement and project-management tasks.
 
 **To advance**
 
@@ -196,18 +195,18 @@ Agents read the Jira ticket, check Confluence and open the PR as you through MCP
 
 ### At this level, by persona
 
-_One shared scale; the evidence behind each level differs by role._
+_One shared scale; the signs of each level differ by role._
 
-- **Developer IC**: Well-specified tickets go to Cloud Agents; you review the PRs. Evidence: Cloud Agent runs, cloud-originated commits, days with MCP use.
-- **Eng Leadership**: Make delegation safe: branch protection, required review, Bugbot, an approved MCP list. Team outcome: your group's share at PL3+ and never-engaged count.
-- **PM / Specialist**: Agents pull tickets and docs through MCP, draft specs and release notes, and run recurring reports as Automations. Evidence: MCP days, Cloud Agent and Automation runs, accepted agent diffs.
+- **Developer IC**: Well-specified tickets go to Cloud Agents; you review the PRs. Signs: Cloud Agents regularly open PRs you review and merge, and MCP is part of your everyday work.
+- **Eng Leadership**: Make delegation safe: branch protection, required review, Bugbot, an approved MCP list. Team outcome: how much of your group works at PL3 or above, and that nobody is left never-engaged.
+- **PM / Specialist**: Agents pull tickets and docs through MCP, draft specs and release notes, and run recurring reports as Automations. Signs: MCP is part of your regular work, Cloud Agents and Automations handle recurring tasks, and you accept agent edits on real work.
 - **Guardrails & HITL**: Every agent PR gets a human review and Bugbot. MCP servers are least-privilege and team-approved. You are accountable for what agents do as you.
 
 **Key Shift**: From “one agent, me watching” to “several agents working, me reviewing.”
 
 ## PL4 | Governed Autonomy
 
-_Proficiency level 4 of 4._ Header: AI SDLC → Cross-functional AI Transformation.  Event-driven agents run end to end behind approval gates, hooks and an audit trail.
+_Proficiency level 4 of 4._ Header: AI SDLC → Cross-functional AI transformation.  Event-driven agents run end to end behind approval gates, hooks and an audit trail.
 
 **Why this matters to you**: You design the system instead of running every task. Routine work such as CI failures, dependency updates and triage is handled by pipelines you built, so your time goes to architecture and the calls only a human should make. Building governed agent systems is senior engineering work anywhere.
 
@@ -224,7 +223,7 @@ A CI failure triggers an agent that diagnoses it and opens a fix PR before you'r
 **To advance**
 
 - Next: Step 8.
-- Signal: an Automation runs week over week behind approval gates, with the governance checklist signed off*.
+- Signal: an Automation runs week over week behind approval gates, with the governance checklist signed off.
 
 ### Step 8 · Multiply
 
@@ -241,11 +240,11 @@ You publish the rules, skills, hooks and Automations other teams adopt. You watc
 
 ### At this level, by persona
 
-_One shared scale; the evidence behind each level differs by role._
+_One shared scale; the signs of each level differ by role._
 
-- **Developer IC**: You design and own governed pipelines for your repos. Evidence: Automations over time, cloud-originated commits, team rules and hooks you authored (admin-saved ones logged under your name).
-- **Eng Leadership**: You set the gates: which changes need approval, who owns each Automation, how audits run. Team outcome: your group's share at PL3+.
-- **PM / Specialist**: Recurring PM work (status, release notes, triage) runs as owned Automations. Grok Bot can optionally carry the cross-workflow knowledge work around them; it never counts toward a gate. Evidence: Automations running week over week.
+- **Developer IC**: You design and own governed pipelines for your repos. Signs: your Automations keep running week over week, Cloud Agents commit to your repos most weeks, and teammates use the team rules and hooks you wrote.
+- **Eng Leadership**: You set the gates: which changes need approval, who owns each Automation, how audits run. Team outcome: how much of your group works at PL3 or above.
+- **PM / Specialist**: Recurring PM work (status, release notes, triage) runs as owned Automations. Grok Bot can optionally carry the cross-workflow knowledge work around them; it never counts toward a gate. Signs: your Automations keep running week over week.
 - **Guardrails & HITL**: Human sign-off at architecture, security, data / schema and prod deploy. Hooks, audit logs and a rollback plan on every pipeline. Not zero human intervention.
 
 **Key Shift**: From “I run the agents” to “I design governed systems that run them.” Humans still own the risk gates.
@@ -253,6 +252,6 @@ _One shared scale; the evidence behind each level differs by role._
 ## Notes for the plugin builder
 
 - **Nothing here is computed.** Place people from the recognition cues in `cursor-playbook.md` and the signals in section 2. Never produce a score, a percentage or a level with a number attached beyond PL1-PL4.
-- **Next steps come only from `cursor-playbook.md`**, from the person's current Step. Don't invent actions, and don't recommend non-Cursor tools.
+- **Next steps come only from `cursor-playbook.md`**, from the person's current Step. Don't invent actions, and don't recommend tools other than Cursor features, apart from Grok Bot as an optional extra at Steps 6 and 8.
 - **Privacy.** Coach from what someone tells you and what's visible in the conversation. Don't ask for usage exports or dashboards, and don't go reading their history, prompts, code or diffs to assess them.
 - **Coaching, not appraisal.** Say so if anyone asks whether this feeds a review.
