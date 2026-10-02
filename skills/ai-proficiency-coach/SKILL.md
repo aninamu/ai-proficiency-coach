@@ -33,11 +33,11 @@ Ask for one of these, in order of preference:
 3. No export, but the person is asking about themselves on their own machine: run the **local probe**. It reads the local stores in `references/data-contract.md` section 5 and fills what one install can measure.
 
    ```bash
-   python3 scripts/local_probe.py --persona IC --text   # see what it found
-   python3 scripts/local_probe.py --persona IC > /tmp/row.json
+   python3 scripts/local_probe.py --persona LEADER --text   # persona is IC, LEADER, or PM
+   python3 scripts/local_probe.py --persona LEADER > /tmp/row.json
    ```
 
-   Then ask the self-assessment questions for the fields it lists under `not_available`, add them to the row, and score with `--local-probe`. Never run it for someone else; it only sees this install.
+   Set `--persona` to this person before running it (ask first if it is not already known). Then ask the self-assessment questions for the fields it lists under `not_available`, add them to the row, and score with `--local-probe`. That list follows the persona, so a leader is asked for `group_share_pl1_plus`, `group_share_pl2_plus`, `group_share_pl3_plus`, and `group_never_engaged_share`. Never run it for someone else; it only sees this install.
 4. No data available: run a **self-assessment**. Ask for these trailing-28-day numbers as best estimates, one short batch at a time: active days; whether Agent requests outnumber chat/Ask requests; skills used and in how many of the 4 weeks; Plan mode uses; team rules or hooks authored; Cloud Agent runs; days with MCP use; Automations and in how many weeks each ran; and the persona-specific outcome fields from data-contract §2.5. Build a row from the answers, and label every result **self-reported**.
 
 ### 2. Identify persona

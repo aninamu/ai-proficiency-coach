@@ -45,6 +45,8 @@ SKIPPED_CONTENT_COLUMNS = (
 PRIMARY_BRANCHES = ("main", "master")
 
 # Fields no local store can answer. Each one stays null in the row.
+# primary_cloud_* are IC Outcomes only. A leader's Outcomes are the group mix,
+# which is not on this install, so those fields replace the IC ones for LEADER.
 NOT_AVAILABLE = {
     "mcp_days": "No local store records MCP use per day; mcp.json lists configured servers only.",
     "skills_in_2of4_weeks": "cursor.slashUsage.v1 keeps lifetime counters and one last-used stamp, with no per-week history.",
@@ -55,6 +57,26 @@ NOT_AVAILABLE = {
     "automations_active_3of4_weeks": "Automation runs are not recorded locally.",
     "accepted_diff_days": "Accepted agent diffs per day are not recorded locally.",
 }
+
+IC_ONLY_OUTCOME_FIELDS = ("primary_cloud_commits", "primary_cloud_commit_weeks")
+
+LEADER_GROUP_FIELDS = {
+    "group_share_pl1_plus": "Share of the group at PL1+ needs the group's level mix, which this install does not have.",
+    "group_share_pl2_plus": "Share of the group at PL2+ needs the group's level mix, which this install does not have.",
+    "group_share_pl3_plus": "Share of the group at PL3+ needs the group's level mix, which this install does not have.",
+    "group_never_engaged_share": "Never-engaged share needs each member's active days, which this install does not have.",
+}
+
+
+def unavailable_fields(persona):
+    """Null fields the coach must ask about before scoring. Outcome fields follow persona."""
+    fields = dict(NOT_AVAILABLE)
+    if persona != "IC":
+        for field in IC_ONLY_OUTCOME_FIELDS:
+            fields.pop(field, None)
+    if persona == "LEADER":
+        fields.update(LEADER_GROUP_FIELDS)
+    return fields
 
 
 def default_paths():
@@ -301,7 +323,8 @@ def build_row(persona, paths=None, window=None, email=None):
     }
     for part in (adoption, reuse, orchestration, outcomes):
         row.update({k: v for k, v in part.items() if not k.startswith("_")})
-    for field in NOT_AVAILABLE:
+    missing = unavailable_fields(persona)
+    for field in missing:
         row.setdefault(field, None)
 
     notes = {
@@ -324,7 +347,7 @@ def build_row(persona, paths=None, window=None, email=None):
         "machine": "single install; other machines, web, and CLI sessions are not included",
         "window": {"start": window.start.isoformat(), "end": window.end.isoformat(), "days": WINDOW_DAYS},
         "field_notes": notes,
-        "not_available": NOT_AVAILABLE,
+        "not_available": missing,
         "mode_counts": adoption["_mode_counts"],
         "mcp_servers_configured": orchestration["_mcp_servers_configured"],
         "skills_seen": reuse["_skills_seen"],

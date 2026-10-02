@@ -181,6 +181,33 @@ class LocalProbe(unittest.TestCase):
         result = score.score_row(row)
         self.assertTrue(result["level_is_floor"])
 
+    def test_not_available_follows_persona_outcomes(self):
+        paths = {key: "/nonexistent/%s" % key for key in
+                 ("ai_tracking_db", "conversation_db", "state_db", "cursor_dir")}
+        window = local_probe.Window(datetime.date(2026, 10, 1))
+
+        ic = local_probe.build_row("IC", paths, window)["_local_probe"]["not_available"]
+        self.assertIn("primary_cloud_commits", ic)
+        self.assertNotIn("group_share_pl1_plus", ic)
+
+        leader = local_probe.build_row("LEADER", paths, window)
+        missing = leader["_local_probe"]["not_available"]
+        for field in ("group_share_pl1_plus", "group_share_pl2_plus",
+                      "group_share_pl3_plus", "group_never_engaged_share"):
+            self.assertIn(field, missing)
+            self.assertIsNone(leader[field])
+        self.assertNotIn("primary_cloud_commits", missing)
+        self.assertNotIn("primary_cloud_commit_weeks", missing)
+        result = score.score_row(leader)
+        self.assertIn("group_share_pl1_plus", result["missing_fields"])
+        self.assertIn("group_never_engaged_share", result["missing_fields"])
+        self.assertNotIn("primary_cloud_commits", result["missing_fields"])
+
+        pm = local_probe.build_row("PM", paths, window)["_local_probe"]["not_available"]
+        self.assertIn("accepted_diff_days", pm)
+        self.assertNotIn("primary_cloud_commits", pm)
+        self.assertNotIn("group_never_engaged_share", pm)
+
     def test_probe_row_leaves_week_based_skill_gates_unknown(self):
         paths = {key: "/nonexistent/%s" % key for key in
                  ("ai_tracking_db", "conversation_db", "state_db", "cursor_dir")}
