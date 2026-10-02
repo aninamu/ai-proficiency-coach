@@ -365,7 +365,7 @@ def score_row(raw, self_reported=False):
     coach_checks = [
         {"check": key, "label": label, "shown_at": "PL%d" % lvl, "value": _bool(checks_in.get(key))}
         for key, (lvl, label) in COACH_CHECKS.items()
-        if lvl <= (next_level or 4)
+        if level is not None and lvl <= (next_level or 4)
     ]
 
     return {
@@ -482,7 +482,7 @@ def render_text(result):
             gap = "" if g["gap"] is None else ", gap %s" % _fmt(g["gap"])
             lines.append("    - %s: %s (have %s, need %s%s)"
                          % (g["pillar"].capitalize(), g["gate"], have, g["need"], gap))
-    else:
+    elif result["level"] == 4:
         lines.append("  At PL4: keep meeting every PL4 gate.")
     if result["missing_fields"]:
         lines.append("  Unknown inputs (gate neither met nor failed): "

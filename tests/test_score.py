@@ -119,6 +119,9 @@ class Gates(unittest.TestCase):
         self.assertEqual(result["level"], 4)
         self.assertEqual(result["unknown_pillars"], ["outcomes"])
         self.assertTrue(result["level_provisional"])
+        self.assertIsNone(result["next_level"])
+        self.assertIn("At PL4", score.render_text(result))
+        self.assertTrue(any(c["shown_at"] == "PL4" for c in result["coach_checks"]))
 
     def test_known_zero_still_fails_its_gate(self):
         row = load_example()
@@ -137,6 +140,10 @@ class Gates(unittest.TestCase):
         self.assertTrue(result["level_provisional"])
         self.assertEqual(len(result["unknown_pillars"]), 4)
         self.assertIsNone(result["next_level"])
+        self.assertEqual(result["coach_checks"], [])
+        text = score.render_text(result)
+        self.assertIn("not scored", text)
+        self.assertNotIn("At PL4", text)
 
     def test_author_log_feeds_reuse_pl4(self):
         row = load_example()
