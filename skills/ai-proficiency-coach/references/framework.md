@@ -1,8 +1,10 @@
 # AI Proficiency framework reference
 
-> Reference framework for the **AI Proficiency Coach** Cursor plugin: proficiency levels, steps, gates, scoring and API mapping. **Metrics & APIs (section 2) is authoritative** for every level decision; the other sections are coaching copy.
+> Reference framework for the **AI Proficiency Coach** Cursor plugin: proficiency levels, steps, gates and API mapping. **Metrics & APIs (section 2) is authoritative** for every level decision; the other sections describe what each level means.
 >
-> `scripts/score.py` implements section 2 exactly. If you change a threshold or weight here, change it there too and re-run `python3 -m unittest discover -s tests` from the repo root.
+> `scripts/score.py` implements section 2 exactly. If you change a threshold here, change it there too and re-run `python3 -m unittest discover -s tests` from the repo root.
+>
+> Per-step actions, exercises, what to avoid and org unblocks live in `cursor-playbook.md`. Keep them out of this file so there is one place to change them. Steps 1–8 are coaching signals; only the section 2 gates set the level.
 
 ## 1. Overview
 
@@ -23,7 +25,7 @@
 | One-liner | Cursor desktop app (IDE and Agents window) is your daily default for everyday tasks. | Rules and skills allow agents to persist context and behave according to your standards; hooks, plugins and MCP extend them to adapt to your tools and workflows. | You delegate scoped work to Cloud Agents and parallel agents, and agents act as you. You review. | Event-driven agents run behind approval gates, hooks and an audit trail. Others adopt what you build. |
 | Steps | Step 1 · Explore<br>Step 2 · Cursor-first | Step 3 · Codify<br>Step 4 · Standardize & verify | Step 5 · Delegate & parallelize<br>Step 6 · Agents act as you | Step 7 · Governed pipelines<br>Step 8 · Multiply |
 
-### How the level is scored  (pillars)
+### The four pillars
 
 | Pillar | Overview description |
 |---|---|
@@ -45,7 +47,7 @@ _Including, but not limited to:_
 ### Governance & coaching
 
 - **Guardrails**: Least-privilege access, human review on every agent PR, owned Automations behind approval gates and an audit trail.
-- **Org unblocks**: Learning time, shared rules and skills, Cloud Agents, an approved MCP list, service accounts. Detail on each PL tab.
+- **Org unblocks**: Learning time, shared rules and skills, Cloud Agents, an approved MCP list, service accounts. Per-step detail in `cursor-playbook.md`.
 - **Coach**: A Cursor skill reads your weekly progress and suggests next steps.
 - **Privacy**: We only see how much people use Cursor, never their chats or code. The level is for coaching; it's not used in appraisals until it's been calibrated.
 
@@ -53,7 +55,7 @@ _Including, but not limited to:_
 
 ## 2. Metrics & APIs (single source of truth for gates)
 
-Single source of truth for every gate, threshold and weight, and the Cursor API endpoint and field behind each. Trailing 28 days, recomputed every Monday. * = coach check, never sets the PL.
+Single source of truth for every gate and threshold, and the Cursor API endpoint and field behind each. Trailing 28 days, recomputed every Monday. * = coach check, never sets the PL.
 
 ### Threshold grid
 
@@ -74,9 +76,8 @@ How gates become a weekly level, plus what is checked or monitored but not score
 
 | Rule | Definition | Detail |
 |---|---|---|
-| Weekly level | Highest level where every pillar gate at that level and below is met (gates are cumulative). | Up after 2 straight weeks at the new level; down after 4 straight weeks below. Store weekly snapshots. |
-| Pillar score | 0–4 per pillar: the highest level whose gate you meet on that pillar. “Not required” counts as met. | Feeds the composite only. |
-| Composite | Σ (persona weight × pillar score), on a 0–4 scale. Informational; never sets the level. | Adoption / Reuse / Orchestration / Outcomes: IC 20/25/30/25 · Leader 20/20/30/30 · PM 25/25/35/15 (each sums to 100). |
+| Weekly level | Highest level with no failed pillar gate at that level or below (gates are cumulative). | “Not required” counts as met. Recomputed each Monday from the trailing 28 days; there is no smoothing, so a quiet week can move the level. |
+| Unknown inputs | A gate with no data is unknown, not failed: it never pushes someone down a level. | The level is then **provisional**, an upper bound until the data lands. A person with no data on any pillar is not scored at all rather than PL0. This matters most for Outcomes, where AI Code Tracking is Alpha and covers only the top-level repo. |
 | Coach checks * | PL2: repo rules / AGENTS.md in place. PL3: every agent PR human-reviewed. PL4: governance checklist signed off; no unresolved high-severity Bugbot findings; your skills adopted by others. | Shown next to the PL, never used to set it. |
 | Governance | Approved MCP servers, hooks and repo blocklists; spend is monitored, not scored. | GET /teams/audit-logs → mcp_server_config, mcp_authentication, team_hook · GET /settings/repo-blocklists/repos · POST /teams/spend → overallSpendCents |
 | Never-engaged | Seat holders with zero active days in the trailing 28 days. | GET /teams/members minus active users in POST /teams/daily-usage-data → isActive |
@@ -116,31 +117,11 @@ _“This can actually help.”  You get fluent in Cursor desktop, in the editor 
 
 In the editor, Tab completes the obvious lines, inline edit rewrites a selected block, and Ask explains an unfamiliar module. In the Agents window, you hand Agent a first real task, such as a unit test or a small bug fix, and review the diff before you keep it.
 
-**Cursor features you use**
-
-- In the editor:
-  - Tab completions
-  - Inline edit (Cmd/Ctrl+K)
-  - Ask, with @-context for the right files
-- In the Agents window:
-  - Agent on a first real task
-  - Diffs view to review the change
-
 **To advance**
 
 - Next: Step 2.
 - Signal: you reach for Agent most weeks, not only Tab and inline edit.
 - PL1 gate: regular active days (Metrics & APIs).
-
-**Try this week**
-
-- Use inline edit instead of hand-editing a block
-- Give Agent one real task in the Agents window
-- Ask it to explain before it edits
-
-**What to avoid**: Don't wait until you're stuck to try AI. Don't send one-line prompts with no context. Don't stop at Tab; give Agent a real task.
-
-**What the org needs to unblock**: Set aside learning time. Publish which code and data are allowed in Cursor. Keep clients current so everyone has the Agents window.
 
 ### Step 2 · Cursor-first
 
@@ -150,29 +131,11 @@ _“Coding starts in Cursor.”  Agent is your default for anything beyond a sma
 
 Coding work starts in Cursor, in whichever surface fits. Small edits stay in the editor with Tab and inline edit. Anything bigger, such as a test suite, a refactor or a new API, goes to Agent in the editor or the Agents window; you review the diff and keep what's right.
 
-**Cursor features you use**
-
-- Agent as the default beyond small edits
-- Editor or Agents window, per task
-- Diff review before you keep changes
-- @-context: files, docs, terminal output
-- Model choice or Cursor Router per task
-
 **To advance**
 
 - Next: PL2.
-- Meet every PL2 gate 2 weeks running: steady Agent use, skills reused week to week, Plan mode, AI lines on the primary branch.
+- Meet every PL2 gate: steady Agent use, skills reused week to week, Plan mode, AI lines on the primary branch.
 - Thresholds: Metrics & APIs.
-
-**Try this week**
-
-- Send every task beyond a small edit to Agent
-- Use Plan mode before any change over an hour
-- Notice what you re-explain every chat: that's your first rule or skill
-
-**What to avoid**: Don't keep doing by hand what Agent should do. Don't accept diffs without running tests. Don't re-type the same context every chat.
-
-**What the org needs to unblock**: Write down team conventions so they can become rules. Fund test coverage so AI output can be verified. Set a default model-routing policy.
 
 ### At this level, by persona
 
@@ -184,8 +147,6 @@ _One shared scale; the evidence behind each level differs by role._
 - **Guardrails & HITL**: Know which code and data are allowed in Cursor. Review every diff before you accept it: you own what you merge.
 
 **Key Shift**: From “AI is something I try now and then” to “coding starts in Cursor, and Agent takes anything bigger than a small edit.”
-
-_Footnote: Scored weekly from Cursor APIs. Gates, thresholds, weights and * items live on the Metrics & APIs tab. Steps 1–8 are coaching signals; only level gates set the PL._
 
 ## PL2 | Reusable Agents
 
@@ -203,27 +164,10 @@ _“I wrote it down once.”  Rules and skills remember how you work._
 
 You turn what you keep repeating into rules and skills: a project rule for conventions, AGENTS.md for how the repo builds and tests, a skill for your PR review or migration workflow. You manage them in Customize, and big changes start in Plan mode.
 
-**Cursor features you use**
-
-- Rules (.cursor/rules) and AGENTS.md
-- Skills (SKILL.md): Agent picks them up, or run /skill-name
-- Plan mode before multi-file changes
-- Customize to manage rules and skills
-
 **To advance**
 
 - Next: Step 4.
 - Signal: your skills get reused week to week, big changes start in Plan mode, and repo rules / AGENTS.md are in place*.
-
-**Try this week**
-
-- Write one rule from your last three corrections
-- Turn your review checklist into a skill
-- Add AGENTS.md with build, test and lint steps
-
-**What to avoid**: Don't write long, vague rules. Don't build skills nobody invokes. Don't skip Plan mode on big changes.
-
-**What the org needs to unblock**: Agree on conventions to encode. Publish team rules and skills in a shared repo or team marketplace. Tell developers what rules may contain.
 
 ### Step 4 · Standardize & verify
 
@@ -233,30 +177,11 @@ _“I have a system for this.”  Same setup, same result, every time._
 
 Each task type starts from a skill with tests in the loop, and team rules keep output consistent. You extend the agent where it helps: a hook that runs format and lint, a plugin from the Cursor Marketplace, an MCP server that gives it your docs or tickets while you drive. Bugbot reviews your PRs.
 
-**Cursor features you use**
-
-- Team rules and skills, shared via the team marketplace
-- Hooks: format, lint, blocked commands
-- Plugins from the Cursor Marketplace
-- MCP servers: context and tools while you drive
-- Bugbot on every PR
-
 **To advance**
 
 - Next: PL3.
-- Meet every PL3 gate 2 weeks running: skills used most weeks, Cloud Agent runs, MCP use, cloud-originated commits.
+- Meet every PL3 gate: skills used most weeks, Cloud Agent runs, MCP use, cloud-originated commits.
 - Thresholds: Metrics & APIs.
-
-**Try this week**
-
-- Make the agent run tests before it says done
-- Publish your best skill to the team marketplace
-- Add one hook and one approved MCP server
-- When a rule fails, fix the rule, not the output
-
-**What to avoid**: Don't trust output because it looks right. Don't install plugins or MCP servers you haven't vetted. Don't keep a setup only you can use.
-
-**What the org needs to unblock**: Turn on Bugbot. Approve a plugin and MCP list. Name owners for shared rules and skills. Fund test coverage.
 
 ### At this level, by persona
 
@@ -268,8 +193,6 @@ _One shared scale; the evidence behind each level differs by role._
 - **Guardrails & HITL**: Rules and hooks are where guardrails start: blocked shell commands, protected paths, no secrets in context. Only vetted plugins and MCP servers. Keep a human review on every merge.
 
 **Key Shift**: From “re-explain it every time” to “rules and skills set it up once, and I get the same result every time.”
-
-_Footnote: Scored weekly from Cursor APIs. Gates, thresholds, weights and * items live on the Metrics & APIs tab. Steps 1–8 are coaching signals; only level gates set the PL._
 
 ## PL3 | Delegational Orchestration  (Org Target)
 
@@ -287,27 +210,10 @@ _“Let me hand this off.”  Several agents work while you review._
 
 You write a clear spec, then hand it off: a Cloud Agent implements the feature on its own branch while another writes the tests. Locally you run parallel agents in worktrees to compare approaches. You come back to PRs, review and merge.
 
-**Cursor features you use**
-
-- Cloud Agents: run remotely, open a PR
-- Parallel agents in separate worktrees
-- Subagents for focused sub-tasks
-- Plan mode to write the spec first
-
 **To advance**
 
 - Next: Step 6.
 - Signal: well-scoped tickets go to Cloud Agents and come back as PRs you review.
-
-**Try this week**
-
-- Hand one well-scoped ticket to a Cloud Agent
-- Try two approaches in parallel worktrees; keep the better one
-- Write acceptance criteria before you delegate
-
-**What to avoid**: Don't parallelize tightly coupled work. Don't delegate without a clear spec. Don't let agent PRs pile up unreviewed.
-
-**What the org needs to unblock**: Enable Cloud Agents. Turn on Bugbot and branch protection. Staff review so it doesn't become the bottleneck.
 
 ### Step 6 · Agents act as you
 
@@ -317,28 +223,11 @@ _“My agents use my tools.”  With your access, inside guardrails._
 
 Agents read the Jira ticket, check Confluence and open the PR as you through MCP. A scheduled Automation triages new issues each morning and drafts fixes for your review. For non-code work, the same pattern can extend to your other tools (optional), for example Grok Bot for knowledge-work tasks outside the editor.
 
-**Cursor features you use**
-
-- MCP: Jira, Confluence, GitHub
-- Automations: scheduled or event-triggered
-- CLI / headless for scripted runs
-- Optional: Grok Bot for knowledge-work and cross-workflow tasks outside coding (never required for a level)
-
 **To advance**
 
 - Next: PL4.
-- Meet every PL4 gate 2 weeks running: an Automation running week over week, a team rule or hook you authored (if an admin saves it, they log you as author), cloud commits most weeks.
+- Meet every PL4 gate: an Automation running week over week, a team rule or hook you authored (if an admin saves it, they log you as author), cloud commits most weeks.
 - Thresholds: Metrics & APIs.
-
-**Try this week**
-
-- Connect one approved MCP server; use it on a real ticket
-- Set up one Automation with a named owner
-- Check what an agent can touch before it acts
-
-**What to avoid**: Don't grant broad tokens “to make it work”. Don't run Automations nobody owns. Don't skip checking what an agent did in your name.
-
-**What the org needs to unblock**: Approve an MCP list. Provision service accounts. Give security review a clear path to yes for tool access.
 
 ### At this level, by persona
 
@@ -350,8 +239,6 @@ _One shared scale; the evidence behind each level differs by role._
 - **Guardrails & HITL**: Every agent PR gets a human review and Bugbot. MCP servers are least-privilege and team-approved. You are accountable for what agents do as you.
 
 **Key Shift**: From “one agent, me watching” to “several agents working, me reviewing.”
-
-_Footnote: Scored weekly from Cursor APIs. Gates, thresholds, weights and * items live on the Metrics & APIs tab. Steps 1–8 are coaching signals; only level gates set the PL._
 
 ## PL4 | Governed Autonomy
 
@@ -369,27 +256,10 @@ _“My agents run without me starting them.”  Behind gates you designed._
 
 A CI failure triggers an agent that diagnoses it and opens a fix PR before you're in. Dependency updates run on a schedule. Changes to data, schemas, security or prod stop at an approval gate. Hooks block destructive commands with a clear blocked-action path, and every run is in the audit log.
 
-**Cursor features you use**
-
-- Automations on events and schedules
-- CLI / headless in GitHub Actions
-- Hooks to block or require approval
-- Service accounts, least-privilege MCP
-
 **To advance**
 
 - Next: Step 8.
 - Signal: an Automation runs week over week behind approval gates, with the governance checklist signed off*.
-
-**Try this week**
-
-- Automate one recurring task end to end, with a kill switch
-- Add a hook that blocks DROP / ALTER without approval
-- Write the rollback plan first
-
-**What to avoid**: Don't automate without a rollback path. Don't grant more permission than the task needs. Don't ignore alerts.
-
-**What the org needs to unblock**: Provision service accounts and approval gates. Review audit logs. Assign an owner to every Automation.
 
 ### Step 8 · Multiply
 
@@ -399,27 +269,11 @@ _“Others run what I built.”  Your patterns become the standard._
 
 You publish the rules, skills, hooks and Automations other teams adopt. You watch how they're used, fix what breaks and retire what doesn't pay off. You help the next team adopt the pattern as a shared delivery blueprint, and extend it beyond engineering where it fits (optionally with Grok Bot for cross-workflow knowledge work).
 
-**Cursor features you use**
-
-- Team rules and hooks
-- Shared skills via the team marketplace
-- Automation templates for other repos
-
 **To advance**
 
 - Stay at PL4.
 - Keep meeting every PL4 gate; others adopting the skills you publish is a coach check*.
 - Thresholds: Metrics & APIs.
-
-**Try this week**
-
-- Publish one skill and track who uses it
-- Pair with a PL2 team on their rules
-- Review your Automations quarterly; retire the unused
-
-**What to avoid**: Don't build only for yourself. Don't ship shared assets without an owner or docs. Don't chase autonomy for its own sake.
-
-**What the org needs to unblock**: Fund a platform team to own shared assets. Agree on a definition of “safe to automate”. Recognize people who build for others.
 
 ### At this level, by persona
 
@@ -432,14 +286,11 @@ _One shared scale; the evidence behind each level differs by role._
 
 **Key Shift**: From “I run the agents” to “I design governed systems that run them.” Humans still own the risk gates.
 
-_Footnote: Scored weekly from Cursor APIs. Gates, thresholds, weights and * items live on the Metrics & APIs tab. Steps 1–8 are coaching signals; only level gates set the PL._
-
 ## Notes for the plugin builder
 
-- **Metrics & APIs is authoritative.** Compute levels only from the threshold grid and scoring rules (section 2). Treat the Overview and PL-level text as coaching copy.
+- **Metrics & APIs is authoritative.** Compute levels only from the threshold grid and scoring rules (section 2). Treat the Overview and PL-level text as description, not as gates.
 - **\* items never set the level.** Coach checks and items that can't be verified by API are shown next to the level only. Two maintained lists do feed attribution, so decide up front how to treat a missing entry:
   - the author log, for team rules and hooks an admin saves on someone's behalf;
   - the Automation owner list, for runs under a service account.
 - **Privacy.** Usage metadata only. Drop commit `message` when ingesting `/analytics/ai-code/commits`. Don't call conversation-insights or the file-level blame endpoints.
-- **Weekly level rule.** Store weekly snapshots so the coach can apply "up after 2 straight weeks, down after 4".
-- **Next steps.** Draw them from the current Step's "Try this week" and from the smallest unmet gate.
+- **Next steps.** Draw them from the smallest unmet gate, via the "Gap → first action" table in `cursor-playbook.md`.

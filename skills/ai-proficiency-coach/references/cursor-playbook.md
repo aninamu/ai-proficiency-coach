@@ -1,6 +1,6 @@
 # Cursor playbook: Steps 1-8
 
-Use this to turn a smallest unmet gate into a concrete Cursor action. Each Step lists the Cursor features it relies on, a 10-minute exercise, and the data-contract fields the exercise moves. Thresholds live only in `framework.md` section 2.
+Use this to turn a smallest unmet gate into a concrete Cursor action. Each Step lists the Cursor features it relies on, a 10-minute exercise, the data-contract fields the exercise moves, what to avoid, and what the org has to unblock. Thresholds live only in `framework.md` section 2; actions live only here.
 
 Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 6 and 8 for knowledge work outside coding; it never counts toward a gate.
 
@@ -36,6 +36,10 @@ You'll recognize this stage when… you mostly use Tab and the occasional chat q
 
 **Moves**: `active_days`, `agent_requests`, `commits_with_ai_lines`, `accepted_diff_days`.
 
+**Avoid**: waiting until you're stuck to try AI; one-line prompts with no context; stopping at Tab instead of giving Agent a real task.
+
+**Org unblock**: protected learning time; a published list of which code and data are allowed in Cursor; clients kept current so everyone has the Agents Window.
+
 ### Step 2 · Cursor-first
 
 You'll recognize this stage when… you reach for Agent most days, but you keep re-explaining the same context at the start of every chat.
@@ -49,6 +53,10 @@ You'll recognize this stage when… you reach for Agent most days, but you keep 
 3. Write down every piece of context you had to re-explain. That list becomes your first rule or skill in Step 3.
 
 **Moves**: `plan_mode_uses`, `agent_requests` vs `chat_requests`, `primary_ai_commit_share`.
+
+**Avoid**: doing by hand what Agent should do; accepting diffs without running tests; re-typing the same context every chat.
+
+**Org unblock**: write down team conventions so they can become rules; fund test coverage so AI output can be verified; set a default model-routing policy.
 
 ## PL2 · Reusable Agents
 
@@ -66,6 +74,10 @@ You'll recognize this stage when… you keep pasting the same instructions into 
 4. Put the skill on your calendar: invoke `/skill-name` every time that task comes up this week.
 
 **Moves**: `skills_in_2of4_weeks`, `plan_mode_uses`; coach check `repo_rules_in_place`*.
+
+**Avoid**: long, vague rules; skills nobody invokes; skipping Plan Mode on big changes.
+
+**Org unblock**: agree on the conventions worth encoding; publish team rules and skills in a shared repo or team marketplace; tell developers what rules may contain.
 
 ### Step 4 · Standardize & verify
 
@@ -86,6 +98,10 @@ You'll recognize this stage when… your rules and skills work well for you, but
 3. Publish your most-used skill to the team marketplace from Customize → Skills.
 
 **Moves**: `skills_in_3of4_weeks`, `mcp_days`.
+
+**Avoid**: trusting output because it looks right; installing plugins or MCP servers you haven't vetted; keeping a setup only you can use. When a rule fails, fix the rule, not the output.
+
+**Org unblock**: turn on Bugbot; approve a plugin and MCP list; name owners for shared rules and skills; fund test coverage.
 
 ## PL3 · Delegational Orchestration (org target)
 
@@ -108,6 +124,10 @@ You'll recognize this stage when… you're waiting on one agent to finish when y
 
 **Moves**: `cloud_agent_runs`, `primary_cloud_commits`, `primary_cloud_commit_weeks`; coach check `agent_prs_human_reviewed`*.
 
+**Avoid**: parallelizing tightly coupled work; delegating without a clear spec; letting agent PRs pile up unreviewed.
+
+**Org unblock**: enable Cloud Agents; turn on Bugbot and branch protection; staff review so it doesn't become the bottleneck.
+
 ### Step 6 · Agents act as you
 
 You'll recognize this stage when… you copy ticket details and doc links into chat by hand, and the same morning chores still wait for you to kick them off.
@@ -126,6 +146,10 @@ You'll recognize this stage when… you copy ticket details and doc links into c
 3. Check what tools and repos the Automation can touch before you activate it.
 
 **Moves**: `mcp_days`, `automations_active_3of4_weeks`.
+
+**Avoid**: granting broad tokens "to make it work"; Automations nobody owns; skipping the check on what an agent did in your name.
+
+**Org unblock**: approve an MCP list; provision service accounts; give security review a clear path to yes for tool access.
 
 ## PL4 · Governed Autonomy
 
@@ -170,6 +194,10 @@ Then write the rollback plan and kill switch for your Automation before you wide
 
 **Moves**: `automations_active_3of4_weeks`, `primary_cloud_commit_weeks`; coach checks `governance_checklist_signed_off`* and `no_unresolved_high_sev_bugbot`*.
 
+**Avoid**: automating without a rollback path; granting more permission than the task needs; ignoring alerts.
+
+**Org unblock**: provision service accounts and approval gates; review audit logs; assign an owner to every Automation.
+
 ### Step 8 · Multiply
 
 You'll recognize this stage when… teammates keep asking for your rules, skills and Automations, and you're answering the same setup questions twice.
@@ -189,9 +217,13 @@ You'll recognize this stage when… teammates keep asking for your rules, skills
 
 **Moves**: `team_rules_hooks_authored`; coach check `skills_adopted_by_others`*.
 
+**Avoid**: building only for yourself; shipping shared assets without an owner or docs; chasing autonomy for its own sake.
+
+**Org unblock**: fund a platform team to own shared assets; agree on a definition of "safe to automate"; recognize people who build for others.
+
 ## Leaders
 
-Match the org unblock to where most of the group sits (framework.md "What the org needs to unblock"):
+Match the org unblock to where most of the group sits:
 
 - **Mostly PL0-PL1**: protected learning time; publish which code and data are allowed in Cursor; keep clients current. Follow up personally and supportively with never-engaged seats.
 - **Mostly PL2**: agree on conventions to encode; publish team rules and skills in the team marketplace; turn on Bugbot; approve a plugin and MCP list; fund test coverage.

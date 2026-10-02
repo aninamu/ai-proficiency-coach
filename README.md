@@ -21,11 +21,11 @@ The skill is grounded in one framework (`skills/ai-proficiency-coach/references/
 | Steps | 1 Explore · 2 Cursor-first | 3 Codify · 4 Standardize & verify | 5 Delegate & parallelize · 6 Agents act as you | 7 Governed pipelines · 8 Multiply |
 | In practice | Cursor desktop (editor and Agents Window) is your daily default; Agent handles anything beyond a small edit. | Rules, `AGENTS.md` and skills carry your standards; Plan Mode for big changes; hooks, plugins and MCP extend the agent. | Scoped work goes to Cloud Agents and parallel agents; MCP lets agents act as you; you review. | Event-driven Automations behind approval gates, hooks and an audit trail; others adopt what you build. |
 
-- **Four pillars**, each scored 0-4: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on persona: AI and cloud commits on the primary branch for a Developer IC, the group's level mix for Eng Leadership, and accepted agent diffs and Automations for a PM / Specialist.
-- **Gates are cumulative.** Your level is the highest level where every pillar gate at that level and below is met. The displayed level moves up after 2 straight weeks at a new level and down after 4 straight weeks below.
-- **Composite** = persona-weighted sum of the pillar scores (0-4). It's informational and never sets the level.
+- **Four pillars**: Adoption, Reuse, Orchestration and Outcomes. Outcomes depends on persona: AI and cloud commits on the primary branch for a Developer IC, the group's level mix for Eng Leadership, and accepted agent diffs and Automations for a PM / Specialist.
+- **Gates are cumulative.** Your level is the highest level with no failed pillar gate at that level or below.
+- **Unknown is not zero.** A gate with no data behind it never pushes you down a level; the level is reported as provisional (an upper bound) and the unknown pillar is named. Someone with no data at all isn't scored, rather than being called PL0.
 - **Coach checks (\*)**, such as repo rules / `AGENTS.md`, human review of agent PRs and the governance checklist, are shown next to the level and never set it.
-- Trailing 28 days, recomputed every Monday. All thresholds and weights are in `framework.md` section 2, the single source of truth.
+- Trailing 28 days, recomputed from scratch every Monday. There's no smoothing, so the level is one week's snapshot and a quiet week can move it. All thresholds are in `framework.md` section 2, the single source of truth.
 
 ## Repository layout
 
@@ -37,9 +37,9 @@ assets/logo.svg
 skills/ai-proficiency-coach/
   SKILL.md               # the coaching procedure
   references/
-    framework.md         # levels, Steps 1-8, gates (section 2 is authoritative)
+    framework.md         # what each level means, and the gates (section 2 is authoritative)
     data-contract.md     # weekly input row and Cursor API source per field
-    cursor-playbook.md   # Step -> Cursor features -> 10-minute exercise
+    cursor-playbook.md   # Step -> features, exercise, what to avoid, org unblock
   scripts/score.py       # scorer (Python 3 standard library only)
   examples/
     fake-ic-row.json     # the data-contract worked example (FAKE data)
@@ -94,8 +94,7 @@ A typical weekly pipeline, run by an admin each Monday:
 1. Pull the trailing 28 days from each endpoint. Analytics endpoints default to 7 days, so pass `startDate=28d`. Admin endpoints take epoch-ms `startDate`/`endDate`. Respect the rate limits: 20/min for daily usage and audit logs, 60/min for usage events.
 2. Bucket the window into W1-W4 and build one row per person, following `data-contract.md` §2. Add persona from HR/SCIM, plus the manual lists: the author log, the Automation owner list and coach checks.
 3. Score everyone, then fill each leader's `group_*` fields from their members' levels, and score the leaders.
-4. Store weekly snapshots in `history`, so the up-after-2 / down-after-4 rule can apply.
-5. Give each person their own row, and each leader the team summary, to use with the skill.
+4. Give each person their own row, and each leader the team summary, to use with the skill.
 
 Keep API keys in your environment or secret manager. Never commit them, and never paste them into chat.
 
@@ -108,7 +107,7 @@ python3 scripts/score.py examples/fake-team.csv --team      # team mix
 python3 scripts/score.py examples/fake-ic-row.json --json   # machine-readable
 ```
 
-On the fake worked example, the output is `PL2`, pillars Adoption 3 / Reuse 2 / Orchestration 3 / Outcomes 2, and composite `2.50`. The two smallest gaps to PL3 are one more skill used in ≥3 of 4 weeks and one more primary-branch cloud commit.
+On the fake worked example, the output is `PL2`, and the two smallest gaps to PL3 are one more skill used in ≥3 of 4 weeks and one more primary-branch cloud commit.
 
 ## Privacy
 
@@ -119,11 +118,12 @@ On the fake worked example, the output is `PL2`, pillars Adoption 3 / Reuse 2 / 
 
 ## Limitations
 
-- The Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers only the top-level repo of a workspace. Without an export, the result is self-reported.
+- The Admin, Analytics and AI Code Tracking APIs are Enterprise-only. AI Code Tracking is in Alpha and covers only the top-level repo of a workspace. Where it doesn't reach, the IC Outcomes inputs come back empty, so most levels will be provisional until repo coverage improves. Send nulls rather than zeros for commit fields you can't see: a zero reads as "wrote no AI code" and will hold someone at PL0.
+- Without an export, the result is self-reported.
 - Date-ranged endpoints cap at 30 days, which is enough for the 28-day window.
 - Some items can't be verified by API, so they are coach checks or maintained lists: repo rules / `AGENTS.md`, skill authorship and adoption by others, Bugbot findings per person, the governance checklist, Automation owners under service accounts, team rule or hook authors saved by an admin, parallel agents, output quality, and persona. See `framework.md` "Not verifiable by API".
 - Audit-log `team_rule` / `team_hook` events are all counted as authored for now. Whether `event_data` separates create, update and delete is an open item in the data contract.
-- "Not required" pillar gates count as met, so a new user's Reuse and Orchestration scores start above zero. This raises the composite, but never the level.
+- The level is recomputed from one 28-day window with no smoothing, so holiday or on-call weeks can move it. Treat a single week as a conversation starter, not a trend.
 
 ## Development
 
@@ -131,7 +131,7 @@ On the fake worked example, the output is `PL2`, pillars Adoption 3 / Reuse 2 / 
 python3 -m unittest discover -s tests -v
 ```
 
-If you change a threshold or weight in `framework.md` section 2, make the same change in `scripts/score.py` and the tests.
+If you change a threshold in `framework.md` section 2, make the same change in `scripts/score.py` and the tests. Keep per-step coaching copy (actions, exercises, what to avoid, org unblocks) in `cursor-playbook.md` only, and gates in `framework.md` section 2 only.
 
 ## License
 
