@@ -223,7 +223,39 @@ These are never fetched from Cursor APIs. Use `null` when unknown.
 
 ---
 
-## 5. Feeding `scripts/score.py`
+## 5. Local sources (ad hoc, one signed-in install)
+
+`scripts/local_probe.py` builds a partial row with no admin export and no API key, from stores the signed-in user already has on disk. It is the tier between an export and a blind self-assessment. Paths below are macOS; `$SUPPORT` is `~/Library/Application Support/Cursor`.
+
+| Store | Table or key | Fills |
+|---|---|---|
+| `~/.cursor/ai-tracking/ai-code-tracking.db` | `ai_code_hashes` (`createdAt`) | `active_days` |
+| | `conversation_summaries` (`mode`, `updatedAt`) | `agent_requests` / `chat_requests` proxy, plan-mode count |
+| | `scored_commits` (`branchName`, `commitDate`, `tabLinesAdded`, `composerLinesAdded`) | `commits_with_ai_lines`, `primary_commits`, `primary_commits_with_ai_lines` |
+| `$SUPPORT/User/globalStorage/conversation-search.db` | `conversations` (`updated_at`) | `active_days` |
+| `$SUPPORT/User/globalStorage/state.vscdb` | `cloudAgentRepository.agents.<userId>` (`bcId`, `createdAt`) | `cloud_agent_runs` |
+| | `cursor.slashUsage.v1` | skills invoked, with lifetime count and last-used date |
+| `~/.cursor/plans/*.md` | file mtime | `plan_mode_uses` proxy |
+| `~/.cursor/mcp.json` | `mcpServers` | configured servers, shown as context only |
+
+**Privacy.** These stores also hold conversation titles, a full-text body index, summary `tldr` / `overview`, and `commitMessage`. The probe selects metadata columns only and asserts its own SQL against a deny list, so an edit that reaches for content fails loudly. Transcripts under `~/.cursor/projects/*/agent-transcripts/*.jsonl` would yield per-week skill and MCP use, but only by parsing message bodies, so they are out of scope.
+
+**Not available locally.** The probe leaves these null and says why:
+
+| Field | Why |
+|---|---|
+| `skills_in_2of4_weeks`, `skills_in_3of4_weeks` | `cursor.slashUsage.v1` stores lifetime counters and one `lastAt`, with no per-week history. |
+| `primary_cloud_commits`, `primary_cloud_commit_weeks` | `scored_commits` has no `commitSource`, so cloud commits can't be separated from local ones. |
+| `mcp_days` | Nothing local records MCP use per day; `mcp.json` is configuration. |
+| `automations_active_3of4_weeks`, `accepted_diff_days` | Not recorded locally. |
+| `team_rules_hooks_authored` | Local files show personal rules and hooks; team authorship is an audit-log event. |
+| `group_*`, `persona`, coach checks, `email` | Not on the install. |
+
+**Two consequences.** `active_days` is a **floor**: a second machine, a web session or CLI use elsewhere is invisible, and the two local day counts routinely disagree. And because the two capped gates above are exactly the PL3 Reuse and Outcomes gates, a probe row usually scores PL1 or PL2 with `level_is_floor` set. Treat it as a starting point for the self-assessment questions, not a verdict.
+
+---
+
+## 6. Feeding `scripts/score.py`
 
 - **JSON**: one row object, or an array of row objects, exactly as in §4. See `examples/fake-ic-row.json`.
 - **CSV**: one row per person-week with the §2 field names as headers. List and object fields (`skills`, `automations`, `author_log`, `automation_owner_list`, `history`, `group_level_counts`) go in JSON-encoded cells. Coach checks may be given as `coach_checks.<name>` columns. See `examples/fake-team.csv`.

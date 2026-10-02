@@ -12,10 +12,13 @@ Usage:
   python3 score.py ROWS.csv --json       # machine-readable output
   python3 score.py ROWS.csv --team       # add PL0-PL4 mix and never-engaged count
   python3 score.py ROW.json --self-reported
+  python3 score.py ROW.json --local-probe   # row built by scripts/local_probe.py
   cat ROW.json | python3 score.py -
 
 Standard library only. Missing (null) inputs fail their gate and are listed
 under missing_fields; they are never treated as real zeros in the output text.
+Because a missing input can only pull a level down, any row with missing fields
+is reported with level_is_floor set, meaning the real level may be higher.
 """
 
 import argparse
@@ -331,7 +334,7 @@ def displayed_level(gated, history):
     return prev, "steady at PL%d" % prev
 
 
-def score_row(raw, self_reported=False):
+def score_row(raw, data_source=None):
     row = derive(raw)
     persona = str(row.get("persona") or "").strip().upper()
     if persona not in PERSONAS:
@@ -381,8 +384,10 @@ def score_row(raw, self_reported=False):
         "email": row.get("email"),
         "persona": persona,
         "week_ending": row.get("week_ending"),
-        "data_source": "self-reported" if self_reported else "usage-data",
+        "data_source": data_source or row.get("data_source") or "usage-data",
         "gated_level": gated,
+        # Missing inputs fail their gate, so the level can only be too low, never too high.
+        "level_is_floor": bool(missing),
         "displayed_level": shown,
         "displayed_level_reason": reason,
         "pillar_scores": scores,
@@ -459,7 +464,9 @@ def render_text(result):
         "%s (%s, week ending %s, %s)"
         % (result["email"] or "unknown", result["persona"], result["week_ending"] or "?",
            result["data_source"]),
-        "  Level: PL%d (gated PL%d; %s)" % (lvl, result["gated_level"], result["displayed_level_reason"]),
+        "  Level: PL%d%s (gated PL%d; %s)"
+        % (lvl, " at least" if result["level_is_floor"] else "",
+           result["gated_level"], result["displayed_level_reason"]),
         "  Pillars: " + ", ".join("%s %d" % (p.capitalize(), result["pillar_scores"][p]) for p in PILLARS),
         "  Composite: %.2f / 4 (informational)" % result["composite"],
     ]
@@ -476,6 +483,7 @@ def render_text(result):
         lines.append("  At PL4: keep meeting every PL4 gate.")
     if result["missing_fields"]:
         lines.append("  Missing inputs (gate counted as unmet): " + ", ".join(result["missing_fields"]))
+        lines.append("  The level is a floor: fill these in before treating it as settled.")
     checks = ["%s=%s" % (c["label"], "unknown" if c["value"] is None else c["value"])
               for c in result["coach_checks"]]
     if checks:
@@ -490,11 +498,19 @@ def main(argv=None):
     parser.add_argument("--team", action="store_true", help="add a PL0-PL4 team mix summary")
     parser.add_argument("--self-reported", action="store_true",
                         help="label results as self-reported rather than usage data")
+    parser.add_argument("--local-probe", action="store_true",
+                        help="label results as built by scripts/local_probe.py from one install")
     args = parser.parse_args(argv)
+
+    source = None
+    if args.self_reported:
+        source = "self-reported"
+    elif args.local_probe:
+        source = "local-probe"
 
     rows = [r for r in load_rows(args.input) if not _bool(r.get("is_removed"))]
     try:
-        results = [score_row(r, args.self_reported) for r in rows]
+        results = [score_row(r, source) for r in rows]
     except ValueError as exc:
         parser.error(str(exc))
 

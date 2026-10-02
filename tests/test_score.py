@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import sys
@@ -7,6 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = os.path.join(ROOT, "skills", "ai-proficiency-coach")
 sys.path.insert(0, os.path.join(SKILL, "scripts"))
 
+import local_probe  # noqa: E402
 import score  # noqa: E402
 
 
@@ -119,6 +121,73 @@ class WeeklyLevelRule(unittest.TestCase):
     def test_down_needs_four_straight_weeks(self):
         self.assertEqual(score.displayed_level(1, self.history([3, 2, 2], [3, 3, 3]))[0], 3)
         self.assertEqual(score.displayed_level(1, self.history([2, 2, 2], [3, 3, 3]))[0], 2)
+
+
+class MissingDataIsAFloor(unittest.TestCase):
+    def test_complete_row_is_not_a_floor(self):
+        self.assertFalse(score.score_row(load_example())["level_is_floor"])
+
+    def test_missing_input_marks_the_level_as_a_floor(self):
+        result = score.score_row(blank_row(skills_in_3of4_weeks=None))
+        self.assertTrue(result["level_is_floor"])
+        self.assertIn("skills_in_3of4_weeks", result["missing_fields"])
+
+    def test_data_source_comes_from_flag_then_row(self):
+        self.assertEqual(score.score_row(blank_row())["data_source"], "usage-data")
+        self.assertEqual(
+            score.score_row(blank_row(data_source="local-probe"))["data_source"], "local-probe")
+        self.assertEqual(
+            score.score_row(blank_row(data_source="local-probe"), "self-reported")["data_source"],
+            "self-reported")
+
+
+class LocalProbe(unittest.TestCase):
+    def test_window_buckets_oldest_to_newest(self):
+        window = local_probe.Window(datetime.date(2026, 9, 27))
+        self.assertEqual(window.start, datetime.date(2026, 8, 31))
+        self.assertEqual(window.bucket(window.start_ms), 1)
+        self.assertEqual(window.bucket(window.end_ms - 1), 4)
+        self.assertIsNone(window.bucket(window.start_ms - 1))
+        self.assertIsNone(window.bucket(window.end_ms))
+
+    def test_parses_the_git_log_date_scored_commits_stores(self):
+        window = local_probe.Window(datetime.date(2026, 10, 1))
+        padded = local_probe.parse_commit_date("Fri Sep 18 13:17:51 2026 -0400")
+        unpadded = local_probe.parse_commit_date("Thu Oct 1 17:08:00 2026 +0000")
+        self.assertTrue(window.contains(padded))
+        self.assertTrue(window.contains(unpadded))
+        self.assertIsNone(local_probe.parse_commit_date("not a date"))
+        self.assertIsNone(local_probe.parse_commit_date(None))
+
+    def test_primary_branch_detection(self):
+        self.assertTrue(local_probe.is_primary("main"))
+        self.assertTrue(local_probe.is_primary(" Master "))
+        self.assertFalse(local_probe.is_primary("demo/dashboard-lookup-api"))
+        self.assertFalse(local_probe.is_primary(None))
+
+    def test_queries_refuse_to_select_content_columns(self):
+        with self.assertRaises(AssertionError):
+            local_probe.query("/nonexistent.db", "select commitMessage from scored_commits")
+
+    def test_missing_stores_yield_a_row_of_nulls_not_zeros(self):
+        paths = {key: "/nonexistent/%s" % key for key in
+                 ("ai_tracking_db", "conversation_db", "state_db", "cursor_dir")}
+        row = local_probe.build_row("IC", paths, local_probe.Window(datetime.date(2026, 10, 1)))
+        self.assertEqual(row["data_source"], "local-probe")
+        for field in local_probe.NOT_AVAILABLE:
+            self.assertIsNone(row[field], field)
+        # Fields the probe owns are real counts from empty stores, so zero is correct.
+        self.assertEqual(row["cloud_agent_runs"], 0)
+        result = score.score_row(row)
+        self.assertTrue(result["level_is_floor"])
+
+    def test_probe_row_leaves_week_based_skill_gates_unknown(self):
+        paths = {key: "/nonexistent/%s" % key for key in
+                 ("ai_tracking_db", "conversation_db", "state_db", "cursor_dir")}
+        row = local_probe.build_row("IC", paths, local_probe.Window(datetime.date(2026, 10, 1)))
+        # A `skills` array would let derive() turn "unknown" into a hard zero.
+        self.assertNotIn("skills", row)
+        self.assertIsNone(score.derive(row)["skills_in_3of4_weeks"])
 
 
 class CsvInput(unittest.TestCase):
