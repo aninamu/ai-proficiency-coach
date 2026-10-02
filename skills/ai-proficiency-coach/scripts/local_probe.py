@@ -45,8 +45,8 @@ SKIPPED_CONTENT_COLUMNS = (
 PRIMARY_BRANCHES = ("main", "master")
 
 # Fields no local store can answer. Each one stays null in the row.
-# primary_cloud_* are IC Outcomes only. A leader's Outcomes are the group mix,
-# which is not on this install, so those fields replace the IC ones for LEADER.
+# Outcome inputs follow persona: primary_cloud_* are IC only, accepted_diff_days
+# is the PM Outcomes gate, and a leader's Outcomes are the group mix.
 NOT_AVAILABLE = {
     "mcp_days": "No local store records MCP use per day; mcp.json lists configured servers only.",
     "skills_in_2of4_weeks": "cursor.slashUsage.v1 keeps lifetime counters and one last-used stamp, with no per-week history.",
@@ -59,6 +59,7 @@ NOT_AVAILABLE = {
 }
 
 IC_ONLY_OUTCOME_FIELDS = ("primary_cloud_commits", "primary_cloud_commit_weeks")
+PM_ONLY_OUTCOME_FIELDS = ("accepted_diff_days",)
 
 LEADER_GROUP_FIELDS = {
     "group_share_pl1_plus": "Share of the group at PL1+ needs the group's level mix, which this install does not have.",
@@ -73,6 +74,9 @@ def unavailable_fields(persona):
     fields = dict(NOT_AVAILABLE)
     if persona != "IC":
         for field in IC_ONLY_OUTCOME_FIELDS:
+            fields.pop(field, None)
+    if persona != "PM":
+        for field in PM_ONLY_OUTCOME_FIELDS:
             fields.pop(field, None)
     if persona == "LEADER":
         fields.update(LEADER_GROUP_FIELDS)

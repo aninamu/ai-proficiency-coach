@@ -174,7 +174,7 @@ class LocalProbe(unittest.TestCase):
                  ("ai_tracking_db", "conversation_db", "state_db", "cursor_dir")}
         row = local_probe.build_row("IC", paths, local_probe.Window(datetime.date(2026, 10, 1)))
         self.assertEqual(row["data_source"], "local-probe")
-        for field in local_probe.NOT_AVAILABLE:
+        for field in local_probe.unavailable_fields("IC"):
             self.assertIsNone(row[field], field)
         # Fields the probe owns are real counts from empty stores, so zero is correct.
         self.assertEqual(row["cloud_agent_runs"], 0)
@@ -189,6 +189,7 @@ class LocalProbe(unittest.TestCase):
         ic = local_probe.build_row("IC", paths, window)["_local_probe"]["not_available"]
         self.assertIn("primary_cloud_commits", ic)
         self.assertNotIn("group_share_pl1_plus", ic)
+        self.assertNotIn("accepted_diff_days", ic)
 
         leader = local_probe.build_row("LEADER", paths, window)
         missing = leader["_local_probe"]["not_available"]
@@ -198,6 +199,8 @@ class LocalProbe(unittest.TestCase):
             self.assertIsNone(leader[field])
         self.assertNotIn("primary_cloud_commits", missing)
         self.assertNotIn("primary_cloud_commit_weeks", missing)
+        self.assertNotIn("accepted_diff_days", missing)
+        self.assertNotIn("accepted_diff_days", leader)
         result = score.score_row(leader)
         self.assertIn("group_share_pl1_plus", result["missing_fields"])
         self.assertIn("group_never_engaged_share", result["missing_fields"])
