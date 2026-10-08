@@ -186,7 +186,7 @@ _“My agents use my tools.”  With your access, inside guardrails._
 
 **What it looks like**
 
-Agents read the Jira ticket, check Confluence and open the PR as you through MCP. A scheduled Automation triages new issues each morning and drafts fixes for your review. For non-code work, the same pattern can extend to your other tools (optional), for example Grok Bot. Grok Bot is an optional agent for knowledge work outside the editor, such as IT, enablement and project-management tasks.
+Agents read the Jira ticket, check Confluence and open the PR as you through MCP. A scheduled Automation triages new issues each morning and drafts fixes for your review. For non-code work, the same pattern can extend to your other tools (optional), for example Grok Bot for knowledge-work tasks outside the editor.
 
 **To advance**
 
@@ -252,6 +252,6 @@ _One shared scale; the signs of each level differ by role._
 ## Notes for the plugin builder
 
 - **Nothing here is computed.** Place people from the recognition cues in `cursor-playbook.md` and the signals in section 2. Never produce a score, a percentage or a level with a number attached beyond PL1-PL4.
-- **Next steps come only from `cursor-playbook.md`**, from the person's current Step. Don't invent actions, and don't recommend tools other than Cursor features, apart from Grok Bot as an optional extra at Steps 6 and 8.
+- **Next steps come only from `cursor-playbook.md`**, from the person's current Step. Don't invent actions, and don't recommend non-Cursor tools beyond the optional Grok Bot at Steps 6 and 8.
 - **Privacy.** Coach from what someone tells you and what's visible in the conversation. Don't ask for usage exports or dashboards, and don't go reading their history, prompts, code or diffs to assess them.
 - **Coaching, not appraisal.** Say so if anyone asks whether this feeds a review.

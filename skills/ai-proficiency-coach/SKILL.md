@@ -46,7 +46,7 @@ Two or three sentences:
 - Pick what fits what they're already doing. If they're mid-task with you, anchor the suggestion to that task.
 - Add one item from the same Step's "Avoid".
 - Say what the next Step looks like, in one line, so the direction is clear.
-- Recommend only Cursor features, plus Grok Bot as an optional extra at Steps 6 and 8; it is never required. Grok Bot is an optional agent for knowledge work outside the editor, such as IT, enablement and project-management tasks.
+- Recommend only Cursor features. Grok Bot is optional for knowledge work outside coding at Steps 6 and 8; it is never required.
 
 ### 4. Leaders
 
