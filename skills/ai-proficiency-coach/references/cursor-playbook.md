@@ -2,7 +2,7 @@
 
 Use this to turn what's holding someone back into a concrete Cursor action. Each Step lists a recognition cue, the Cursor features it relies on, a 10-minute exercise, what to avoid, and what the org has to unblock. What each level means lives in `framework.md`; actions live only here.
 
-Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 6 and 8 for knowledge work outside coding; it is never required.
+Only Cursor features are listed. Grok Bot appears as an optional extra at Steps 6 and 8, for knowledge work outside the editor such as IT, enablement and project-management tasks; it is never required.
 
 ## What's holding them back → first action
 
@@ -225,7 +225,7 @@ You'll recognize this stage when… teammates keep asking for your rules, skills
 
 Match the org unblock to where most of the group sits:
 
-- **Mostly PL0-PL1**: protected learning time; publish which code and data are allowed in Cursor; keep clients current. Follow up personally and supportively with never-engaged seats.
+- **Mostly PL1 or not yet started**: protected learning time; publish which code and data are allowed in Cursor; keep clients current. Follow up personally and supportively with never-engaged seats.
 - **Mostly PL2**: agree on conventions to encode; publish team rules and skills in the team marketplace; turn on Bugbot; approve a plugin and MCP list; fund test coverage.
 - **Mostly PL3**: enable Cloud Agents; set branch protection and required review; provision service accounts; staff review so it doesn't become the bottleneck.
 - **Toward PL4**: approval gates and audit-log review; an owner for every Automation; a platform owner for shared assets.
